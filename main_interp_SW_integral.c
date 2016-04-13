@@ -14,7 +14,7 @@
 /*************************************************************************************
                            DEFINITION OF GLOBAL VARIABLES
 *************************************************************************************/
-extern double *z_depth=NULL, *PotDot=NULL, *PotDot_l_app1=NULL, *PotDot_l_app2=NULL;
+extern double *z_depth=NULL, *PotDot=NULL;
 
 
 /*************************************************************************************
@@ -23,9 +23,6 @@ extern double *z_depth=NULL, *PotDot=NULL, *PotDot_l_app1=NULL, *PotDot_l_app2=N
 #include "variables.c"
 #include "reading.c"
 #include "interp_PotDot_of_Z.c"
-#include "linear_interp_app1.c"
-#include "linear_interp_app2.c"
-
 
 
 /*******************************************************************
@@ -79,122 +76,85 @@ int main(int argc, char *argv[])
   /*+++++ Reading datafile +++++*/
   printf("Reading the file...\n");
   printf("-----------------------------------------\n");
-#ifdef BINARYDATA
+
   read_binary();
-#endif
-  
+
+  /*  
 #ifdef ASCIIDATA
   read_data(GV.FILENAME);
 #endif
+  */
 
   printf("File read!\n");
   printf("--------------------------------------------------\n");
       
 
-  //---------------------------------------------------------  
+  //---------------------------------------------------------
   /*Interpolation of values from exact PotDot*/
-  //---------------------------------------------------------    
+  //---------------------------------------------------------  
   z_depth = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   PotDot  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   
+
   
-  pf = fopen( "./../SW_Integral_Exact_sln.dat", "w" );
-  fprintf(pf, "#n\t i\t j\t x\t y\t SW_Integral\n");
+#ifdef POTDOTEXACT
+  pf = fopen( "./../SWIntegral_Exact.dat", "w" );
+#endif
 
-   for(i=0; i<GV.NCELLS; i++)
-     {                                                                                                          
-       for(j=0; j<GV.NCELLS; j++)                                                                                
-	 {                                                                                                       
-	   n = INDEX_C_2D(i,j);                                                                                  
-	   fill_potdot_xy(i, j); // this one builtds pot_dot(z)                                                  
-	   	   
-	   fprintf( pf,                                                                                          
-		    "%12d %12d %12d %16.8f %16.8f %16.8f\n",                                                     
-                   n, i, j, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*SW_integral() );                                
-	 }//for j 
-     }//for i
-   
-   fclose(pf);
-      
-   free(z_depth);
-   free(PotDot);
-   
-   printf("Interpolation finished\n");
-   printf("-----------------------------------------\n");
-       
+
+#ifdef POTDOTAPP1
+  pf = fopen( "./../SWIntegral_App1.dat", "w" );
+#endif
+
+
+#ifdef POTDOTAPP2
+  pf = fopen( "./../SWIntegral_App2.dat", "w" );
+#endif
   
-  //---------------------------------------------------------  
-  /*Interpolation of values in linear regime with the first approximation to f(t)*/
-  //---------------------------------------------------------    
-  printf("Beginning interpolation of values from the first linear approximation to f(t) proportional to 1/Omega_L0\n");
-  printf("--------------------------------------------------\n");
   
-  z_depth   = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
-  PotDot_l_app1  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
+  fprintf(pf, "#n\t x\t y\t SW_Integral\n");
 
 
-  pf = fopen( "./../SWIntegral_LApp1.dat", "w" );
-  fprintf(pf, "#n\t i\t j\t x\t y\t z\t SW_Integral_l\n");
-
+#ifdef SIMPSON  
   for(i=0; i<GV.NCELLS; i++)
-    {
-      for(j=0; j<GV.NCELLS; j++)
-	{
-	  n = INDEX_C_2D(i, j);
-	  fill_potdot_l_xy_app1(i, j);
-	  	  
-	  fprintf(pf,"%d %d %d %f %f %f\n", 
-		  n, i, j, 
-		  gp[n].pos[X], gp[n].pos[Y], GV.a_SF*SW_integral_l_app1());
+    {                                                                                                          
+      for(j=0; j<GV.NCELLS; j++)                                                                                
+	{                                                                                                       
+	  n = INDEX_C_2D(i,j);                                                                                  
+	  fill_potdot_xy(i, j); // this one builds pot_dot(z)
 	  
-	}//for j      
-    }//for i  
+	   fprintf( pf, 
+		    "%12d %16.8f %16.8f %16.8f\n", 
+		    n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*SW_integral() ); 
+	}//for j 
+    }//for i
+#endif 
 
-  fclose(pf);
-
-
-  free(z_depth);
-  free(PotDot_l_app1);
-
-  printf("Interpolation of values from first linear approx. finished!\n");
-  printf("-----------------------------------------\n");
-   
-
-
-  //---------------------------------------------------------  
-  /*Interpolation of values in linear regime with the second approximation to f (f_app2)*/
-  //---------------------------------------------------------  
-  
-  printf("Beginning interpolation of values from the second linear approximation to f(t) proportional to Omega_M(a)\n");
-  printf("-----------------------------------------\n");
-  
-  z_depth   = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
-  PotDot_l_app2  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
-
-  pf = fopen( "./../SWIntegral_LApp2.dat", "w" );
-  fprintf(pf, "#n\t i\t j\t x\t y\t z\t SW_Integral_l_app2\n");
-
+  /*
+#ifdef GSLINTERPINTEG
   for(i=0; i<GV.NCELLS; i++)
-    {
-      for(j=0; j<GV.NCELLS; j++)
-	{
-	  n = INDEX_C_2D(i,j);
-	  fill_potdot_l_xy_app2(i, j);
-	    
-	  fprintf(pf,"%d %d %d %f %f %f\n", 
-		  n, i, j, 
-		  gp[n].pos[X], gp[n].pos[Y], GV.a_SF*SW_integral_l_app2());
-	}//for j      
-    }//for i  
+    {                                                                                                          
+      for(j=0; j<GV.NCELLS; j++)                                                                                
+	{                                                                                                       
+	  n = INDEX_C_2D(i,j);                                                                                  
+	  fill_potdot_xy(i, j); // this one builds pot_dot(z)
+	  
+	   fprintf( pf,                                                                                          
+		    "%12d %16.8f %16.8f %16.8f\n",                                                     
+		    n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*SW_integral() ); 
+	}//for j 
+    }//for i
+#endif
+  */
 
   fclose(pf);
-
+  
   free(z_depth);
-  free(PotDot_l_app2);
-
-
-  printf("Interpolation of values from second linear approx. finished!\n");
+  free(PotDot);
+  
+  printf("Interpolation finished\n");
   printf("-----------------------------------------\n");
+  
     
   
   printf("Code finished!\n");  

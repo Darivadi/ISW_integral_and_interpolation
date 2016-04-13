@@ -1,32 +1,15 @@
-/*****************************************************************************
-                               HEADERS
-******************************************************************************/
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <math.h>
-//#include <gsl/gsl_errno.h>
-//#include <gsl/gsl_spline.h>
-//#include <gsl/gsl_integration.h>
-//#include <gsl/gsl_sort_float.h>
-
-
 /******************************************************************************
 NAME: inter_PotDot_ofZ 
-FUNCTION: Reads a data file with positions of a
-grid and the time derivative of the gravitational potential value in
-each cell, in order to perform an interpolation PotDot(z) and compute
-the Sachs-Wolfe integral.  
-INPUT: A file with the data of the ID of
-the cells in the grid, positions of the cells and the value of the
-time derivative of the potential.  
-RETURN: Files: interpolated
-function PotDot(z) for each value of z, and the integral along the "z"
+FUNCTION: Reads a data file with positions of a grid and the time derivative of the gravitational 
+potential value in each cell, in order to perform an interpolation PotDot(z) and compute the 
+Sachs-Wolfe integral.  
+INPUT: A file with the positions of the cells and the value of the time derivative of the potential.  
+RETURN: Files: interpolated function PotDot(z) for each value of z, and the integral along the "z"
 axis for fixed "x" and "y".
 ******************************************************************************/
 
 /*************************************************************************************
-   Returns the value of the value of the pot_dot for a point with
-   coordonates x(i),y(j),zeval 
+   Returns the value of the pot_dot for a point with coordinates x(i),y(j),zeval 
 *************************************************************************************/
 
 double fill_potdot_xy(int i, int j)
@@ -42,7 +25,7 @@ double fill_potdot_xy(int i, int j)
     }//for k 
     
   z_depth[0] = 0.0;
-  z_depth[GV.NCELLS-1] = 400.0;
+  z_depth[GV.NCELLS-1] = GV.BoxSize;
 
   return 0;
   
@@ -142,7 +125,7 @@ double SW_integral(void)
   double result, error;
 
   lowerLimit = 0.0;
-  upperLimit = 400.0;
+  upperLimit = GV.BoxSize;
   
   //F.function = &integrando;
   //F.params = &p;
@@ -181,7 +164,7 @@ double *dT_dr_integ(int i, int j)
     {
       m = (k * ny + j) * nx + i; 
       
-      T_depth[k] = simpson(gp[m].pos[Z]-GV.CellStep, 400.0, INTEGRATION_NSTEPS);
+      T_depth[k] = simpson(gp[m].pos[Z]-GV.CellStep, GV.BoxSize, INTEGRATION_NSTEPS);
       
       if(k==(nz-1))
 	{
@@ -192,7 +175,7 @@ double *dT_dr_integ(int i, int j)
 	  DeltaT[k] = T_depth[k+1] - T_depth[k];
 	}//else
       
-      dT_dr[k] = DeltaT[k] / ( (double) (400.0 / (double) (GV.NCELLS)) );
+      dT_dr[k] = DeltaT[k] / ( ( GV.BoxSize / (1.0 * GV.NCELLS) ) );
       
       //printf("m=%d i=%d j=%d k=%d posZ=%lf T_depth=%lf DeltaT=%lf dT_dr=%lf\n", m, i, j, k, gp[m].pos[Z], T_depth[k], DeltaT[k], dT_dr[k]);
     }//for k

@@ -36,14 +36,8 @@ Gravitational constant in the interal units G = 43.0071
 
 struct grid
 {
-  int GID;           // Gid; Cell ID (m)
   double pos[3];     //Cell position
-  double p[3];     //momentum in each direction
-  double NumDen;    //Density of each cell
-  double DenCon;     //Density contrast value in the cell
   double potDot_r;   //Potential's time derivative (exact solution)
-  double potDot_r_l_app1; //Potential's time deriative in r-space in the linear approximation.
-  double potDot_r_l_app2; //Potential's time deriative in r-space in the linear approximation.
 }*gp; //grid
 
 
@@ -56,7 +50,7 @@ struct GlobalVariables
   int NCELLS;       // Number of cells in one axis
   int NTOTALCELLS;  // Total number of cell
   
-  double Mpart;     // Mass of the particles
+
   double CellSize;  // Size of the cell
   double ZERO;      // Zero for the computer
   double CellStep; // Distance between one border of the cell and the grid point which is at the center of the cell.

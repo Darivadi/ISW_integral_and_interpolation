@@ -51,20 +51,21 @@ int read_parameters( char filename[] )
 
 
   /*+++++ Parameters for ASCII data +++++*/
+  /*
 #ifdef ASCIIDATA
-  /*+++++ Simulation parameters +++++*/
+  //+++++ Simulation parameters +++++
   nread = fscanf(file, "%d", &GV.NCELLS);
   nread = fscanf(file, "%lf", &GV.BoxSize);
   nread = fscanf(file, "%s", GV.FILENAME);
   
-  /*+++++ Cosmological parameters +++++*/  
+  //+++++ Cosmological parameters +++++
   nread = fscanf(file, "%lf", &GV.Omega_M0);
   nread = fscanf(file, "%lf", &GV.Omega_L0);
   nread = fscanf(file, "%lf", &GV.z_RS);
   nread = fscanf(file, "%lf", &GV.H0);    
   GV.a_SF = 1.0/(1.0 + GV.z_RS); 
 #endif
-
+  */
     fclose( file );
     
     printf( "  * The file '%s' has been loaded!\n", filename );
@@ -83,7 +84,7 @@ FUNCTION: reads the input file
 INPUT: GV.FILENAME variable
 RETURN: 0
 *****************************************************************************/
-
+/*
 int read_data(char *infile)
 {
   int m, nread;
@@ -95,10 +96,10 @@ int read_data(char *infile)
   
   pf = fopen(infile, "r");
   
-  /*Ignoring the first line*/
+  //Ignoring the first line
   nread = fgets(buff, 1000, pf);
   
-  /*Reading from the second line*/
+  //Reading from the second line
   for(m=0; m<GV.NTOTALCELLS; m++)
     {     
       nread=fscanf(pf,"%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", 
@@ -121,7 +122,7 @@ int read_data(char *infile)
   
   return 0;
 }//read_data
-
+*/
 
 
 /**************************************************************************************************** 
@@ -140,6 +141,7 @@ int read_binary(void)
   inFile = fopen(GV.FILENAME, "r");
 
   printf("Reading simulation parameters\n");
+
   /*+++++ Saving Simulation parameters +++++*/
   nread = fread(&GV.BoxSize, sizeof(double), 1, inFile);  //Box Size
   nread = fread(&GV.Omega_M0, sizeof(double), 1, inFile);  //Matter density parameter
@@ -165,20 +167,16 @@ int read_binary(void)
 
 
   for(i=0; i<GV.NTOTALCELLS; i++ )
-    { 
-      nread = fread(&gp[i].GID, sizeof(int), 1, inFile);
-
+    {       
       nread = fread(&pos_aux[0], sizeof(double), 3, inFile);
       
       /*----- Positions -----*/
       gp[i].pos[X] = pos_aux[X];
       gp[i].pos[Y] = pos_aux[Y];
       gp[i].pos[Z] = pos_aux[Z];
-
-      nread = fread(&dummy, sizeof(double), 1, inFile);
-      nread = fread(&dummy, sizeof(double), 1, inFile);  // Gravitational potential in cell
-      nread = fread(&gp[i].potDot_r_l_app1, sizeof(double), 1, inFile);  // PotDot in first approximation
-      nread = fread(&gp[i].potDot_r_l_app2, sizeof(double), 1, inFile);  // PotDot in second approximation
+            
+      nread = fread(&gp[i].potDot_r, sizeof(double), 1, inFile);  // PotDot 
+      
             
       if(i%100000==0)
 	{

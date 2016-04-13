@@ -1,0 +1,19 @@
+#---------------------------------------
+#--------- PARAMETERS FILE -------------
+#---------------------------------------
+#+++++++++++++++++++++++++++++++++++++++
+#Number of cells per axis is N
+#Total number of cells is N^3
+N = 512
+#Length of the box in one axis (in Mpc/h)
+L = 400.0
+#Path of data file
+FILENAME = /home/dvalencia/Processed_data_from_CIC/Snap150/NGrid512/CIC/DenCon_Poten_PotDots.dat
+#Matter parameter today
+OmegaM0 = 0.258
+#Cosmological constant parameter
+OmegaL0 = 0.742
+#Redshift
+z = 0.0
+#Hubble parameter
+H = 100

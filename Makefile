@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA
+CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA -DPOTDOTEXACT -DSIMPSON
 CFLAGSASCII = -c -O3 -Wall -I/home/$(USER)/local/include/ -I/usr/include/ -DASCIIDATA
 CFLAGS = -c -O3 -I$(HOME)/local/include/ -I/usr/include/ -DASCIIDATA
 LFLAGS = -lm -L$(HOME)/local/lib -Wl,"-R /export/$(USER)/local/lib"

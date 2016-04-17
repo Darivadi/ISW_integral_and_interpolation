@@ -32,7 +32,6 @@ double fill_potdot_xy(int i, int j)
 }//fill_potdot_xy
 
 
-
 /*************************************************************************************
                              Performing interpolation
 *************************************************************************************/
@@ -45,7 +44,8 @@ double potdot_xy(double zeval)
   acc = gsl_interp_accel_alloc();
   linearInterp = gsl_spline_alloc(gsl_interp_linear, (size_t) GV.NCELLS );
   gsl_spline_init( linearInterp, z_depth, PotDot, (size_t) GV.NCELLS );
-  
+
+  //gsl_interp_eval_integ (linearInterp, dist_exp, r_times_dens, down_lim, up_lim,  acc);
   PotDot_ofZ = gsl_spline_eval(linearInterp, zeval, acc);
   
   gsl_spline_free(linearInterp);

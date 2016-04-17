@@ -23,6 +23,7 @@ extern double *z_depth=NULL, *PotDot=NULL;
 #include "variables.c"
 #include "reading.c"
 #include "interp_PotDot_of_Z.c"
+#include "interp_integ_gsl.c"
 
 
 /*******************************************************************
@@ -95,20 +96,19 @@ int main(int argc, char *argv[])
   z_depth = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   PotDot  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   
-
   
 #ifdef POTDOTEXACT
-  pf = fopen( "./../SWIntegral_Exact.dat", "w" );
+  pf = fopen( "./../Processed_data/SWIntegral_Exact.dat", "w" );
 #endif
 
 
 #ifdef POTDOTAPP1
-  pf = fopen( "./../SWIntegral_App1.dat", "w" );
+  pf = fopen( "./../Processed_data/SWIntegral_App1.dat", "w" );
 #endif
 
 
 #ifdef POTDOTAPP2
-  pf = fopen( "./../SWIntegral_App2.dat", "w" );
+  pf = fopen( "./../Processed_data/SWIntegral_App2.dat", "w" );
 #endif
   
   
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
     }//for i
 #endif 
 
-  /*
+  
 #ifdef GSLINTERPINTEG
   for(i=0; i<GV.NCELLS; i++)
     {                                                                                                          
@@ -139,13 +139,13 @@ int main(int argc, char *argv[])
 	  n = INDEX_C_2D(i,j);                                                                                  
 	  fill_potdot_xy(i, j); // this one builds pot_dot(z)
 	  
-	   fprintf( pf,                                                                                          
-		    "%12d %16.8f %16.8f %16.8f\n",                                                     
-		    n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*SW_integral() ); 
+	  fprintf( pf,                                                                                          
+		   "%12d %16.8f %16.8f %16.8f\n",                                                     
+		   n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*interp_integ_potdot_dx() ); 
 	}//for j 
     }//for i
 #endif
-  */
+  
 
   fclose(pf);
   

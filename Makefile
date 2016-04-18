@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA -DPOTDOTEXACT -DSIMPSON
-CFLAGSSIMP = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA -DPOTDOTEXACT -DSIMPSON
+CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA -DSIMPSON
+CFLAGSSIMP = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA -DSIMPSON
 CFLAGSASCII = -c -O3 -Wall -I/home/$(USER)/local/include/ -I/usr/include/ -DASCIIDATA
-CFLAGS = -c -O3 -I$(HOME)/local/include/ -I/usr/include/ -DBINARYDATA -DPOTDOTEXACT -DGSLINTERPINTEG
+CFLAGS = -c -O3 -I$(HOME)/local/include/ -I/usr/include/ -DBINARYDATA -DGSLINTERPINTEG
 LFLAGS = -lm -L$(HOME)/local/lib -Wl,"-R /export/$(USER)/local/lib"
 
 

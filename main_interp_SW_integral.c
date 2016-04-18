@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
   double z, *dT_dr=NULL; 
   char *infile=NULL;
   FILE *pf=NULL;
-  FILE *pf1=NULL;
   char buff[1000];
 
 
@@ -101,24 +100,11 @@ int main(int argc, char *argv[])
   printf("Memory allocated\n");
 
   
-#ifdef POTDOTEXACT
-  pf = fopen( "./../Processed_data/SWIntegral_Exact.dat", "w" );
-#endif
-  
-  
-#ifdef POTDOTAPP1
-  pf = fopen( "./../Processed_data/SWIntegral_App1.dat", "w" );
-#endif
-  
-  
-#ifdef POTDOTAPP2
-  pf = fopen( "./../Processed_data/SWIntegral_App2.dat", "w" );
-#endif
-    
+  pf = fopen( "./../Processed_data/SWIntegral_Exact.dat", "w" );  
   fprintf(pf, "#n\t x\t y\t SW_Integral\n");
-
-
   printf("Interpolation\n");
+
+
 #ifdef SIMPSON  
   printf("Beginning interpolation and integration with Simpson method");
   for(i=0; i<GV.NCELLS; i++)
@@ -151,7 +137,6 @@ int main(int argc, char *argv[])
     }//for i
 #endif
   
-
   fclose(pf);
   
   free(z_depth);

@@ -77,13 +77,14 @@ int main(int argc, char *argv[])
   /*+++++ Reading datafile +++++*/
   printf("Reading the file...\n");
   printf("-----------------------------------------\n");
+#ifdef BINARYDATA
   read_binary();
+#endif
 
-  /*  
 #ifdef ASCIIDATA
   read_data(GV.FILENAME);
 #endif
-  */
+  
 
   printf("File read!\n");
   printf("--------------------------------------------------\n");
@@ -98,23 +99,26 @@ int main(int argc, char *argv[])
   z_depth = (double *) calloc(GV.NCELLS, sizeof(double));
   PotDot  = (double *) calloc(GV.NCELLS, sizeof(double));
   printf("Memory allocated\n");
+
   
 #ifdef POTDOTEXACT
   pf = fopen( "./../Processed_data/SWIntegral_Exact.dat", "w" );
 #endif
-
-
+  
+  
 #ifdef POTDOTAPP1
   pf = fopen( "./../Processed_data/SWIntegral_App1.dat", "w" );
 #endif
-
-
+  
+  
 #ifdef POTDOTAPP2
   pf = fopen( "./../Processed_data/SWIntegral_App2.dat", "w" );
 #endif
     
   fprintf(pf, "#n\t x\t y\t SW_Integral\n");
 
+
+  printf("Interpolation\n");
 #ifdef SIMPSON  
   printf("Beginning interpolation and integration with Simpson method");
   for(i=0; i<GV.NCELLS; i++)

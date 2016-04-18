@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   printf("Allocating memory\n");
   z_depth = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   PotDot  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
-  
+  printf("Memory allocated\n");
   
 #ifdef POTDOTEXACT
   pf = fopen( "./../Processed_data/SWIntegral_Exact.dat", "w" );
@@ -110,10 +110,8 @@ int main(int argc, char *argv[])
 #ifdef POTDOTAPP2
   pf = fopen( "./../Processed_data/SWIntegral_App2.dat", "w" );
 #endif
-  
-  
+    
   fprintf(pf, "#n\t x\t y\t SW_Integral\n");
-
 
 #ifdef SIMPSON  
   printf("Beginning interpolation and integration with Simpson method");

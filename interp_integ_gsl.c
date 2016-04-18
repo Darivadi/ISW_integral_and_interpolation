@@ -7,9 +7,11 @@ RETURN:
 
 double interp_integ_potdot_dx(void)
 {
+  double down_lim, up_lim;
   double Integ_ofZ;
   gsl_interp_accel *acc;
   gsl_spline *linearInterp;
+
   
   down_lim = 0.0;
   up_lim = GV.BoxSize;
@@ -17,7 +19,7 @@ double interp_integ_potdot_dx(void)
   acc = gsl_interp_accel_alloc();
   linearInterp = gsl_spline_alloc(gsl_interp_linear, (size_t) GV.NCELLS );
   gsl_spline_init( linearInterp, z_depth, PotDot, (size_t) GV.NCELLS ); 
-  gsl_interp_eval_integ (linearInterp, z_depth, PotDot, down_lim, up_lim,  acc);
+  Integ_ofZ = gsl_spline_eval_integ (linearInterp, down_lim, up_lim, acc);
   
   gsl_spline_free(linearInterp);
   gsl_interp_accel_free(acc);

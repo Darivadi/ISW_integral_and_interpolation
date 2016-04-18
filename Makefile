@@ -24,8 +24,8 @@ asciidata:
 	$(CC) $(PROGRAM).o $(LFLAGS) -lgsl -lgslcblas -lm -o $(PROGRAM).x
 
 simpsonint:
-	$(CC) $(CFLAGSSIMP) $@.c -o $@.o
-	$(CC) $@.o $(LFLAGS) -lgsl -lgslcblas -lm -o $@
+	$(CC) $(CFLAGSSIMP) $(PROGRAM).c -o $(PROGRAM).o
+	$(CC) $(PROGRAM).o $(LFLAGS) -lgsl -lgslcblas -lm -o $(PROGRAM)
 	mv main_interp_SW_integral Interp_testing_simp.x
 
 clean:

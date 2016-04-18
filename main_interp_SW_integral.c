@@ -93,8 +93,10 @@ int main(int argc, char *argv[])
   /*Interpolation of values from exact PotDot*/
   //---------------------------------------------------------  
   printf("Allocating memory\n");
-  z_depth = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
-  PotDot  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
+  //z_depth = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
+  //PotDot  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
+  z_depth = (double *) calloc(GV.NCELLS, sizeof(double));
+  PotDot  = (double *) calloc(GV.NCELLS, sizeof(double));
   printf("Memory allocated\n");
   
 #ifdef POTDOTEXACT

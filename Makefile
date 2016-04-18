@@ -19,9 +19,14 @@ debug:
 	$(CC) $(PROGRAM).o $(LFLAGS) -lgsl -lgslcblas -lm -o $(PROGRAM).x
 
 asciidata:
-	echo Compiling for debug $(PROGRAM).c
+	echo Compiling for ascii $(PROGRAM).c
 	$(CC) $(CFLAGSASCII) $(PROGRAM).c -o $(PROGRAM).o
 	$(CC) $(PROGRAM).o $(LFLAGS) -lgsl -lgslcblas -lm -o $(PROGRAM).x
+
+simpsonint:
+	$(CC) $(CFLAGSSIMP) $@.c -o $@.o
+	$(CC) $@.o $(LFLAGS) -lgsl -lgslcblas -lm -o $@
+	mv main_interp_SW_integral Interp_testing_simp.x
 
 clean:
 	rm -rf $(PROGRAM)

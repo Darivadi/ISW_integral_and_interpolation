@@ -13,10 +13,9 @@ int conf2dump( char filename[] )
   sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | gawk -F\"=\" '{print $2}' > %s.dump", 
 	   filename, filename );
   */
-  nread = system( cmd );
   sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | awk -F\"=\" '{print $2}' > %s.dump", 
 	   filename, filename );
-  
+  nread = system( cmd );
   return 0;
 }
 
@@ -48,10 +47,9 @@ int read_parameters( char filename[] )
   file = fopen( filenamedump, "r" );
   
   /*+++++ Parameters for binary data +++++*/
-#ifdef BINARYDATA
   nread = fscanf(file, "%d", &GV.NCELLS);
   nread = fscanf(file, "%s", GV.FILENAME);    
-#endif
+
 
 
   /*+++++ Parameters for ASCII data +++++*/

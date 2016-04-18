@@ -180,7 +180,7 @@ int read_binary(void)
       nread = fread(&gp[i].potDot_r, sizeof(double), 1, inFile);  // PotDot 
       
             
-      if(i%100000==0)
+      if(i%5000000==0)
 	{
 	  printf("Reading i=%d x=%lf y=%lf z=%lf\n", 
 		 i, gp[i].pos[X], gp[i].pos[Y], gp[i].pos[Z]);
@@ -188,6 +188,8 @@ int read_binary(void)
 
     }//for i
 
+  
+  printf("Data read!\n");
   fclose(inFile);
   return 0;
 }//read_binary

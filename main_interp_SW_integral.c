@@ -77,7 +77,6 @@ int main(int argc, char *argv[])
   /*+++++ Reading datafile +++++*/
   printf("Reading the file...\n");
   printf("-----------------------------------------\n");
-
   read_binary();
 
   /*  
@@ -93,6 +92,7 @@ int main(int argc, char *argv[])
   //---------------------------------------------------------
   /*Interpolation of values from exact PotDot*/
   //---------------------------------------------------------  
+  printf("Allocating memory\n");
   z_depth = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   PotDot  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   
@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
 
 
 #ifdef SIMPSON  
+  printf("Beginning interpolation and integration with Simpson method");
   for(i=0; i<GV.NCELLS; i++)
     {                                                                                                          
       for(j=0; j<GV.NCELLS; j++)                                                                                
@@ -132,15 +133,15 @@ int main(int argc, char *argv[])
 
   
 #ifdef GSLINTERPINTEG
+  printf("Beginning interpolation and integration with gsl methods\n");
   for(i=0; i<GV.NCELLS; i++)
     {                                                                                                          
-      for(j=0; j<GV.NCELLS; j++)                                                                                
-	{                                                                                                       
-	  n = INDEX_C_2D(i,j);                                                                                  
-	  fill_potdot_xy(i, j); // this one builds pot_dot(z)
-	  
-	  fprintf( pf,                                                                                          
-		   "%12d %16.8f %16.8f %16.8f\n",                                                     
+      for(j=0; j<GV.NCELLS; j++)                                                                               
+	{                                                                                                      
+	  n = INDEX_C_2D(i,j);                                                                                 
+	  fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
+	  fprintf( pf, 
+		   "%12d %16.8f %16.8f %16.8f\n",
 		   n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*interp_integ_potdot_dx() ); 
 	}//for j 
     }//for i

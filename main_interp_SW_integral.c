@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   printf("Memory allocated\n");
 
   
-  pf = fopen( "./../Processed_data/SWIntegral_Exact.dat", "w" );  
+  pf = fopen( "./../../Processed_data/SWIntegral_Exact.dat", "w" );  
   fprintf(pf, "#n\t x\t y\t SW_Integral\n");
   printf("Interpolation\n");
 

@@ -83,9 +83,7 @@ double *dT_dr_gsl(int i, int j)
       if( k != (GV.NCELLS-1) )
 	{
 	  T_depth[k] = interp_integ_potdot_dx(gp[m].pos[Z]-GV.CellStep, GV.BoxSize); 
-	  
-	  
-	  
+	  	  
 	  DeltaT[k] = T_depth[k+1] - T_depth[k];
 	}//if
       else
@@ -93,14 +91,17 @@ double *dT_dr_gsl(int i, int j)
 	  DeltaT[k] = T_depth[k] = gp[m].potDot_r; 	  
 	}//else
       
-      if(m == 0 || m == 256)
-	    {
-	      printf("m=%d, k=%d, T= %lf\n", m, k, T_depth[k]);
-	    }//if
       
       dr = GV.BoxSize / (1.0 * GV.NCELLS); 
       dT_dr[k] = DeltaT[k] / dr ;
       
+
+      if(m == 0 || m == 256)
+	{
+	  printf("m=%d, k=%d, T= %lf\n", m, k, T_depth[k]);
+	}//if
+      
+
       //printf("m=%d i=%d j=%d k=%d posZ=%lf T_depth=%lf DeltaT=%lf dT_dr=%lf\n", m, i, j, k, gp[m].pos[Z], T_depth[k], DeltaT[k], dT_dr[k]);
             
     }//for k

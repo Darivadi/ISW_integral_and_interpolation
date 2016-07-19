@@ -174,6 +174,19 @@ int main(int argc, char *argv[])
 	  if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) )
 	    {
 	  
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.txt", i, j);
+	      pf = fopen(buffer, "w");
+	      	      
+	      for( k=0; k<GV.NCELLS; k++ )
+		{
+		  m = INDEX_C_ORDER(i,j,k);
+		  
+		  fprintf(pf, "%16.8lf %16.8lf\n", gp[m].pos[Z], dT_dr[k]);
+		}//for k
+	      
+	      fclose(pf);
+
+	      /*
 	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.bin", i, j);
 	      pf = fopen(buffer, "w");
 	      
@@ -190,7 +203,8 @@ int main(int argc, char *argv[])
 		  fwrite(&aux_dT, sizeof(double), 1, pf);
 		}//for k
 	      
-	      fclose(pf);
+		fclose(pf);
+	      */
 	    }//if
 
 	}//for j

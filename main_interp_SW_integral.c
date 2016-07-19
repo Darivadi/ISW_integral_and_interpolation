@@ -171,24 +171,27 @@ int main(int argc, char *argv[])
 	  fill_potdot_xy(i, j);	
 	  dT_dr = dT_dr_gsl(i, j);
 	 
-	  
-	  snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.bin", i, j);
-	  pf = fopen(buffer, "w");
-	  
-	  fwrite(&i, sizeof(int), 1, pf);
-	  fwrite(&j, sizeof(int), 1, pf);
-
-	  for( k=0; k<GV.NCELLS; k++ )
+	  if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) )
 	    {
-	      m = INDEX_C_ORDER(i,j,k);
-	      aux_z = gp[m].pos[Z];
-	      aux_dT = dT_dr[k];
-	      
-	      fwrite(&aux_z, sizeof(double), 1, pf);
-	      fwrite(&aux_dT, sizeof(double), 1, pf);
-	    }//for k
 	  
-	  fclose(pf);
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.bin", i, j);
+	      pf = fopen(buffer, "w");
+	      
+	      fwrite(&i, sizeof(int), 1, pf);
+	      fwrite(&j, sizeof(int), 1, pf);
+	      
+	      for( k=0; k<GV.NCELLS; k++ )
+		{
+		  m = INDEX_C_ORDER(i,j,k);
+		  aux_z = gp[m].pos[Z];
+		  aux_dT = dT_dr[k];
+		  
+		  fwrite(&aux_z, sizeof(double), 1, pf);
+		  fwrite(&aux_dT, sizeof(double), 1, pf);
+		}//for k
+	      
+	      fclose(pf);
+	    }//if
 
 	}//for j
     }//for i

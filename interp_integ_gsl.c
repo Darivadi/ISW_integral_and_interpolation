@@ -66,7 +66,10 @@ RETURN:
 double *dT_dr_gsl(int i, int j)
 {
   double *T_depth=NULL, *DeltaT=NULL, *dT_dr=NULL, dr;
+  double down_lim, up_lim;
   int m, n, k;
+
+  up_lim = GV.BoxSize;
 
 
   T_depth  = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
@@ -82,7 +85,8 @@ double *dT_dr_gsl(int i, int j)
             
       if( k != (GV.NCELLS-1) )
 	{
-	  T_depth[k] = interp_integ_potdot_dx(gp[m].pos[Z]-GV.CellStep, GV.BoxSize); 
+	  down_lim = gp[m].pos[Z]-GV.CellStep;
+	  T_depth[k] = interp_integ_potdot_dx(down_lim, up_lim); 
 	  	  
 	  dT_dr[k] = T_depth[k+1] - T_depth[k];
 	}//if
@@ -98,7 +102,7 @@ double *dT_dr_gsl(int i, int j)
 
       if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
 	{
-	  printf("m=%d, k=%d, z_depth=%lf, T=%lf\n", m, k, z_depth[k], T_depth[k]);
+	  printf("m=%d, k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", m, k, z_depth[k], down_lim, T_depth[k]);	  
 	}//if
       
 

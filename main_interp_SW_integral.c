@@ -40,6 +40,9 @@ int main(int argc, char *argv[])
   char *infile=NULL;
   FILE *pf=NULL;
   char buff[1000];
+  double down_lim, up_lim, aux_z, aux_dT;
+  char buffer[50];
+
 
 
   if(argc < 2)
@@ -56,7 +59,7 @@ int main(int argc, char *argv[])
   printf("-----------------------------------------\n");
   read_parameters( infile );
 
-  /*+++ Other variables +++*/
+  /*+++++ Other variables +++++*/
   GV.ZERO         = 1e-30;
   GV.NTOTALCELLS  = GV.NCELLS*GV.NCELLS*GV.NCELLS;
   GV.CellSize     = GV.BoxSize/(1.0*GV.NCELLS);
@@ -64,10 +67,14 @@ int main(int argc, char *argv[])
   GV.CMB_T0 = 2725480; // micro K
   GV.CellStep = GV.CellSize / 2.0;
   
+  /*----- Integration limits -----*/
+  down_lim = 0.0;
+  up_lim = GV.BoxSize;
+  
   printf("NCells=%d\n", GV.NCELLS);
   printf("--------------------------------------------------\n");
   
-  /*+++ Memory allocation +++*/
+  /*+++++ Memory allocation +++++*/
   gp     = (struct grid *) malloc((size_t) GV.NTOTALCELLS*sizeof(struct grid));
   printf("Memory allocated!\n");
   printf("--------------------------------------------------\n");
@@ -132,7 +139,7 @@ int main(int argc, char *argv[])
 	  fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
 	  fprintf( pf, 
 		   "%12d %16.8f %16.8f %16.8f\n",
-		   n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*interp_integ_potdot_dx() ); 
+		   n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim) );
 	}//for j 
     }//for i
 #endif
@@ -144,6 +151,48 @@ int main(int argc, char *argv[])
   
   printf("Interpolation finished\n");
   printf("-----------------------------------------\n");
+  
+  printf("Performing dT/dr\n");
+  printf("-----------------------------------------\n");
+  
+
+  printf("Allocating memory\n");
+  z_depth = (double *) calloc(GV.NCELLS, sizeof(double));
+  PotDot  = (double *) calloc(GV.NCELLS, sizeof(double));
+  printf("Memory allocated\n");
+
+
+  for( i=0; i<GV.NCELLS; i++ )
+    {
+      for( j=0; j<GV.NCELLS; j++ )
+	{
+	  n = INDEX_C_2D(i,j); 
+	  
+	  fill_potdot_xy(i, j);	
+	  dT_dr = dT_dr_gsl(i, j);
+	 
+	  
+	  snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.bin", i, j);
+	  pf = fopen(buffer, "w");
+	  
+	  fwrite(&i, sizeof(int), 1, pf);
+	  fwrite(&j, sizeof(int), 1, pf);
+
+	  for( k=0; k<GV.NCELLS; k++ )
+	    {
+	      m = INDEX_C_ORDER(i,j,k);
+	      aux_z = gp[m].pos[Z];
+	      aux_dT = dT_dr[k];
+	      
+	      fwrite(&aux_z, sizeof(double), 1, pf);
+	      fwrite(&aux_dT, sizeof(double), 1, pf);
+	    }//for k
+	  
+	  fclose(pf);
+
+	}//for j
+    }//for i
+
   
     
   

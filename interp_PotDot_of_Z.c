@@ -161,7 +161,7 @@ double *dT_dr_integ(int i, int j)
 
 
   for( k=(nz-1); k>=0; --k )
-    {
+    {      
       m = (k * ny + j) * nx + i; 
       
       T_depth[k] = simpson(gp[m].pos[Z]-GV.CellStep, GV.BoxSize, INTEGRATION_NSTEPS);

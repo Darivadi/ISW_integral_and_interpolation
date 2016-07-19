@@ -100,9 +100,10 @@ double *dT_dr_gsl(int i, int j)
       dT_dr[k] /= dr ;
       
 
-      if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
+      //if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
+      if( (i==0 && j==0)  )
 	{
-	  printf("m=%d, k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", m, k, z_depth[k], down_lim, T_depth[k]);	  
+	  printf("m=%d, i=%d, j=%d k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", m, i, j,k, z_depth[k], down_lim, T_depth[k]); 
 	}//if
       
 

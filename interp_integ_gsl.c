@@ -98,7 +98,7 @@ double *dT_dr_gsl(int i, int j)
 
       if(m == 0 || m == 256)
 	{
-	  printf("m=%d, k=%d, T= %lf\n", m, k, T_depth[k]);
+	  printf("m=%d, k=%d, z_depth=%lf, T=%lf\n", m, k, z_depth[k], T_depth[k]);
 	}//if
       
 

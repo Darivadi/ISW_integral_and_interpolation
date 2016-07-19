@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 	  fill_potdot_xy(i, j);	
 	  dT_dr = dT_dr_gsl(i, j);
 	 
-	  if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) )
+	  if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
 	    {
 	  
 	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.txt", i, j);

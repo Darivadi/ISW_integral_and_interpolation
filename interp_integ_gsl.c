@@ -71,7 +71,6 @@ double *dT_dr_gsl(int i, int j)
 
   up_lim = GV.BoxSize;
 
-
   T_depth  = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
   DeltaT   = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
   dT_dr    = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
@@ -79,10 +78,8 @@ double *dT_dr_gsl(int i, int j)
 
   for( k=(GV.NCELLS-1); k>=0; --k )
     {
-
       m = INDEX_C_ORDER(i,j,k);            
-      
-            
+                  
       if( k != (GV.NCELLS-1) )
 	{
 	  down_lim = gp[m].pos[Z]-GV.CellStep;

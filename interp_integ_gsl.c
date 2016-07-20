@@ -13,8 +13,8 @@ double interp_integ_potdot_dx(double down_lim, double up_lim)
   gsl_spline *linearInterp;
 
   
-  down_lim = 0.0;
-  up_lim = GV.BoxSize;
+  //down_lim = 0.0;
+  //up_lim = GV.BoxSize;
 
   acc = gsl_interp_accel_alloc();
   linearInterp = gsl_spline_alloc(gsl_interp_linear, (size_t) GV.NCELLS );

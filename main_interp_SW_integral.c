@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
   char buff[1000];
   double down_lim, up_lim, aux_z, aux_dT;
   char buffer[50];
+  double SW_Temp;
 
 
 
@@ -137,9 +138,16 @@ int main(int argc, char *argv[])
 	{                                                                                                      
 	  n = INDEX_C_2D(i,j);                                                                                 
 	  fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
+	  SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
+	  
+	  if(n%10000==0)
+	    {
+	      printf("n=%12d SW_temp=%16.8lf\n", n, SW_Temp);
+	    }//if
+	  
 	  fprintf( pf, 
 		   "%12d %16.8f %16.8f %16.8f\n",
-		   n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim) );
+		   n, gp[n].pos[X], gp[n].pos[Y], SW_Temp);
 	}//for j 
     }//for i
 #endif

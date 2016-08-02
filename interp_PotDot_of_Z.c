@@ -25,7 +25,7 @@ double fill_potdot_xy(int i, int j)
 
       if(m%10000==0)
 	{
-	  printf("m=%lf z_depth=%lf PotDot=%lf\n", 
+	  printf("m=%10d z_depth=%16.8lf PotDot=%16.8lf\n", 
 		 m, z_depth[k], PotDot[k]);
 	}//if
       

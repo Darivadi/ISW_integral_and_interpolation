@@ -22,6 +22,13 @@ double fill_potdot_xy(int i, int j)
       
       z_depth[k] = gp[m].pos[Z];
       PotDot[k]  = gp[m].potDot_r;
+
+      if(m%10000==0)
+	{
+	  printf("m=%lf z_depth=%lf PotDot=%lf\n", 
+		 m, z_depth[k], PotDot[k]);
+	}//if
+      
     }//for k 
     
   z_depth[0] = 0.0;

@@ -180,10 +180,11 @@ int read_binary(void)
       nread = fread(&gp[i].potDot_r, sizeof(double), 1, inFile);  // PotDot 
       
             
-      if(i%5000000==0)
+      if(i%10000==0)
 	{
-	  printf("Reading i=%d x=%lf y=%lf z=%lf\n", 
-		 i, gp[i].pos[X], gp[i].pos[Y], gp[i].pos[Z]);
+	  printf("Reading i=%d x=%lf y=%lf z=%lf PD = %lf\n", 
+		 i, gp[i].pos[X], gp[i].pos[Y], gp[i].pos[Z],
+		 gp[i].potDot_r);
 	}//if
 
     }//for i

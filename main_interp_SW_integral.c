@@ -63,18 +63,6 @@ int main(int argc, char *argv[])
   /*+++++ Other variables +++++*/
   GV.ZERO         = 1e-30;
   GV.NTOTALCELLS  = GV.NCELLS*GV.NCELLS*GV.NCELLS;
-  GV.CellSize     = GV.BoxSize/(1.0*GV.NCELLS);
-  GV.c_SL = 299792.458; // km/s
-  GV.CMB_T0 = 2725480; // micro K
-  GV.CellStep = GV.CellSize / 2.0;
-  
-  /*----- Integration limits -----*/
-  down_lim = 0.0;
-  up_lim = GV.BoxSize;
-  printf("Down_lim=%lf, Up_lim=%lf\n", down_lim, up_lim);
-  
-  printf("NCells=%d\n", GV.NCELLS);
-  printf("--------------------------------------------------\n");
   
   /*+++++ Memory allocation +++++*/
   gp     = (struct grid *) malloc((size_t) GV.NTOTALCELLS*sizeof(struct grid));
@@ -92,6 +80,21 @@ int main(int argc, char *argv[])
 #ifdef ASCIIDATA
   read_data(GV.FILENAME);
 #endif
+
+  GV.CellSize     = GV.BoxSize/(1.0*GV.NCELLS);
+  GV.c_SL = 299792.458; // km/s
+  GV.CMB_T0 = 2725480.0; // micro K
+  GV.CellStep = 1.0*GV.CellSize / 2.0;
+
+  printf("NCELLS=%d, CellSize=%lf, CellsStep=%lf\n", GV.NCELLS, GV.CellSize, GV.CellStep);
+  
+  /*----- Integration limits -----*/
+  down_lim = 0.0;
+  up_lim = GV.BoxSize;
+  printf("Down_lim=%lf, Up_lim=%lf\n", down_lim, up_lim);
+  
+  printf("NCells=%d\n", GV.NCELLS);
+  printf("--------------------------------------------------\n");
   
 
   printf("File read!\n");

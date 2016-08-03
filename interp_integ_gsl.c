@@ -19,7 +19,7 @@ double interp_integ_potdot_dx(double down_lim, double up_lim)
   acc = gsl_interp_accel_alloc();
   linearInterp = gsl_spline_alloc(gsl_interp_linear, (size_t) GV.NCELLS );
   gsl_spline_init( linearInterp, z_depth, PotDot, (size_t) GV.NCELLS ); 
-  Integ_ofZ = gsl_spline_eval_integ (linearInterp, down_lim, up_lim, acc);
+  Integ_ofZ = gsl_spline_eval_integ(linearInterp, down_lim, up_lim, acc);
   
   gsl_spline_free(linearInterp);
   gsl_interp_accel_free(acc);

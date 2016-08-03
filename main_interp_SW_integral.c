@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
   /*----- Integration limits -----*/
   down_lim = 0.0;
   up_lim = GV.BoxSize;
+  printf("Down_lim=%lf, Up_lim=%lf\n", down_lim, up_lim);
   
   printf("NCells=%d\n", GV.NCELLS);
   printf("--------------------------------------------------\n");
@@ -140,9 +141,17 @@ int main(int argc, char *argv[])
 	  fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
 	  SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
 	  
-	  if(n%10000==0)
+	  if((n==0) || (n==256) || (n==1000) )
 	    {
+	      printf("***********************\n");
 	      printf("n=%12d SW_temp=%16.8lf\n", n, SW_Temp);
+	      
+	      for(k=0; k<GV.NCELLS; k++)
+		{
+		  printf("z=%lf, PotDot_interp=%lf\n", z_depth[k], PotDot[k]);
+		}//for k
+	      printf("***********************\n");
+	      
 	    }//if
 	  
 	  fprintf( pf, 

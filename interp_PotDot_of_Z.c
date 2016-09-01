@@ -20,7 +20,10 @@ double fill_potdot_xy(int i, int j)
     { 
       m = INDEX_C_ORDER(i,j,k);
       
+#ifdef CIC_400
       z_depth[k] = gp[m].pos[Z];
+#endif //CIC_400
+
       PotDot[k]  = gp[m].potDot_r;
 
       /*
@@ -172,7 +175,9 @@ double *dT_dr_integ(int i, int j)
     {      
       m = (k * ny + j) * nx + i; 
       
+#ifdef CIC_400
       T_depth[k] = simpson(gp[m].pos[Z]-GV.CellStep, GV.BoxSize, INTEGRATION_NSTEPS);
+#endif
       
       if(k==(nz-1))
 	{

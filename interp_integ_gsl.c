@@ -34,6 +34,7 @@ FUNCTION: UNDER CONSTRUCTION!
 INPUT: 
 RETURN: 
 ****************************************************************************************************/
+/*
 double fill_potdot_dTdr_xy(int i, int j, int k_lim)
 {  
   int m, k;
@@ -52,7 +53,7 @@ double fill_potdot_dTdr_xy(int i, int j, int k_lim)
   return 0;
   
 }//fill_potdot_xy
-
+*/
 
 
 
@@ -82,7 +83,14 @@ double *dT_dr_gsl(int i, int j)
                   
       if( k != (GV.NCELLS-1) )
 	{
+#ifdef CIC_400
 	  down_lim = gp[m].pos[Z]-GV.CellStep;
+#endif //CIC_400
+
+#ifdef SUPERCIC
+	  down_lim = z_depth[k]-GV.CellStep;
+#endif //SUPERCIC
+
 	  T_depth[k] = interp_integ_potdot_dx(down_lim, up_lim); 
 	  	  
 	  dT_dr[k] = T_depth[k+1] - T_depth[k];

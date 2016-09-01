@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
   read_data(GV.FILENAME);
 #endif
 
-  GV.CellSize     = GV.BoxSize/(1.0*GV.NCELLS);
-  GV.c_SL = 299792.458; // km/s
-  GV.CMB_T0 = 2725480.0; // micro K
+  GV.CellSize = GV.BoxSize/(1.0*GV.NCELLS);
+  GV.c_SL     = 299792.458; // km/s
+  GV.CMB_T0   = 2725480.0; // micro K
   GV.CellStep = 1.0*GV.CellSize / 2.0;
 
   printf("NCELLS=%d, CellSize=%lf, CellsStep=%lf\n", GV.NCELLS, GV.CellSize, GV.CellStep);
@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
   printf("Interpolation\n");
 
 
+    /*+++++ With Simpson method +++++*/
 #ifdef SIMPSON  
   printf("Beginning interpolation and integration with Simpson method");
   for(i=0; i<GV.NCELLS; i++)
@@ -133,9 +134,55 @@ int main(int argc, char *argv[])
     }//for i
 #endif 
 
+
   
+  /*+++++ With GSL methods +++++*/
 #ifdef GSLINTERPINTEG
-  printf("Beginning interpolation and integration with gsl methods\n");
+  
+   printf("Beginning interpolation and integration with gsl methods\n");
+   
+   /*----- CIC box 400 -----*/
+ #ifdef CIC_400
+ 
+   for(i=0; i<GV.NCELLS; i++)
+     {                                                                                                          
+       for(j=0; j<GV.NCELLS; j++)                                                                               
+	 {                                                                                                      
+	   n = INDEX_C_2D(i,j);                                                                                 
+	   fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
+	   SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
+	   
+	   /*
+	     if((n==0) || (n==256) || (n==1000) )
+	     {
+	     printf("***********************\n");
+	     printf("n=%12d SW_temp=%16.8lf\n", n, SW_Temp);
+	     
+	      for(k=0; k<GV.NCELLS; k++)
+	      {
+	      printf("z=%lf, PotDot_interp=%lf\n", z_depth[k], PotDot[k]);
+	      }//for k
+	      printf("***********************\n");
+	      
+	      }//if
+	   */
+	   
+	   fprintf( pf, 
+		    "%12d %16.8f %16.8f %16.8f\n",
+		    n, gp[n].pos[X], gp[n].pos[Y], SW_Temp);
+	 }//for j 
+     }//for i
+ #endif //CIC_400
+   
+
+
+  /*----- Super CIC -----*/
+ #ifdef SUPERCIC
+
+   for(i=0; i<GV.NCELLS; i++)
+     z_depth[i] = i*GV.CellSize;
+       
+       
   for(i=0; i<GV.NCELLS; i++)
     {                                                                                                          
       for(j=0; j<GV.NCELLS; j++)                                                                               
@@ -143,7 +190,8 @@ int main(int argc, char *argv[])
 	  n = INDEX_C_2D(i,j);                                                                                 
 	  fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
 	  SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
-	  
+
+	  /*
 	  if((n==0) || (n==256) || (n==1000) )
 	    {
 	      printf("***********************\n");
@@ -156,12 +204,18 @@ int main(int argc, char *argv[])
 	      printf("***********************\n");
 	      
 	    }//if
+	  */
 	  
 	  fprintf( pf, 
 		   "%12d %16.8f %16.8f %16.8f\n",
-		   n, gp[n].pos[X], gp[n].pos[Y], SW_Temp);
+		   n, i*GV.CellSize, j*GV.CellSize, SW_Temp);
 	}//for j 
     }//for i
+
+ #endif //SuperCIC
+
+
+
 #endif
   
   fclose(pf);
@@ -181,7 +235,8 @@ int main(int argc, char *argv[])
   PotDot  = (double *) calloc(GV.NCELLS, sizeof(double));
   printf("Memory allocated\n");
 
-
+  /*+++++ CIC box 400 +++++*/
+ #ifdef CIC_400
   for( i=0; i<GV.NCELLS; i++ )
     {
       for( j=0; j<GV.NCELLS; j++ )
@@ -206,30 +261,47 @@ int main(int argc, char *argv[])
 	      
 	      fclose(pf);
 
-	      /*
-	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.bin", i, j);
+	    }//if
+
+	}//for j
+    }//for i
+ #endif //CIC_400
+
+  /*+++++ SuperCIC +++++*/
+ #ifdef SUPERCIC
+
+   for(i=0; i<GV.NCELLS; i++)
+     z_depth[i] = i*GV.CellSize;
+
+
+  for( i=0; i<GV.NCELLS; i++ )
+    {
+      for( j=0; j<GV.NCELLS; j++ )
+	{
+	  n = INDEX_C_2D(i,j); 
+	  
+	  fill_potdot_xy(i, j);	
+	  dT_dr = dT_dr_gsl(i, j);
+	 
+	  if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
+	    {
+	      
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.txt", i, j);
 	      pf = fopen(buffer, "w");
 	      
-	      fwrite(&i, sizeof(int), 1, pf);
-	      fwrite(&j, sizeof(int), 1, pf);
-	      
 	      for( k=0; k<GV.NCELLS; k++ )
-		{
-		  m = INDEX_C_ORDER(i,j,k);
-		  aux_z = gp[m].pos[Z];
-		  aux_dT = dT_dr[k];
-		  
-		  fwrite(&aux_z, sizeof(double), 1, pf);
-		  fwrite(&aux_dT, sizeof(double), 1, pf);
+		{		  
+		  fprintf(pf, "%16.8lf %16.8lf\n", k*GV.CellSize, dT_dr[k]);
 		}//for k
 	      
-		fclose(pf);
-	      */
+	      fclose(pf);
+	      
 	    }//if
 
 	}//for j
     }//for i
 
+ #endif //SuperCIC
   
     
   

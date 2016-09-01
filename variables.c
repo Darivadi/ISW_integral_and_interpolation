@@ -36,7 +36,15 @@ Gravitational constant in the interal units G = 43.0071
 
 struct grid
 {
+#ifdef CIC_400 
   double pos[3];     //Cell position
+#endif //CIC_400
+
+#ifdef SUPERCIC 
+  double posz;     //Cell position along z axis
+#endif //Super_CIC
+
+
   double potDot_r;   //Potential's time derivative (exact solution)
 }*gp; //grid
 

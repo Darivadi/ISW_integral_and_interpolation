@@ -144,6 +144,7 @@ int read_binary(void)
 
   printf("Reading simulation parameters\n");
 
+  
   /*+++++ Saving Simulation parameters +++++*/
   nread = fread(&GV.BoxSize, sizeof(double), 1, inFile);  //Box Size
   nread = fread(&GV.Omega_M0, sizeof(double), 1, inFile);  //Matter density parameter
@@ -152,7 +153,7 @@ int read_binary(void)
   nread = fread(&GV.H0, sizeof(double), 1, inFile);  //Hubble parameter
 
   GV.a_SF = 1.0 / (1.0 + GV.z_RS);
-
+  
   printf("-----------------------------------------------\n");
   printf("Cosmological parameters:\n");
   printf("OmegaM0=%lf OmegaL0=%lf redshift=%lf HubbleParam=%lf\n",
@@ -161,13 +162,15 @@ int read_binary(void)
 	 GV.z_RS,
 	 GV.H0);
   printf("-----------------------------------------------\n");
-
+  
   printf("Simulation parameters:\n");
   printf("L=%lf\n",
 	 GV.BoxSize);
   printf("-----------------------------------------------\n");
 
-
+    
+#ifdef CIC_400
+    
   for(i=0; i<GV.NTOTALCELLS; i++ )
     {       
       nread = fread(&pos_aux[0], sizeof(double), 3, inFile);
@@ -188,6 +191,19 @@ int read_binary(void)
 	}//if
 
     }//for i
+#endif 
+
+
+#ifdef SUPERCIC    
+  
+  for(i=0; i<GV.NTOTALCELLS; i++)
+    {
+      /*..... File app2 .....*/
+        nread = fread(&gp[i].potDot_r, sizeof(double), 1, inFile);
+    }//for m	      
+
+#endif  
+
 
   
   printf("Data read!\n");

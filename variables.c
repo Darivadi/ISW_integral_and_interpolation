@@ -36,6 +36,7 @@ Gravitational constant in the interal units G = 43.0071
 
 struct grid
 {
+  /*
 #ifdef CIC_400 
   double pos[3];     //Cell position
 #endif //CIC_400
@@ -43,10 +44,11 @@ struct grid
 #ifdef SUPERCIC 
   double posz;     //Cell position along z axis
 #endif //Super_CIC
-
+  */
 
   double potDot_r;   //Potential's time derivative (exact solution)
 }*gp; //grid
+
 
 
 struct GlobalVariables
@@ -77,17 +79,6 @@ struct GlobalVariables
 }GV;//globalVariables
 
 
-struct aux_grid
-{
-  double auxPos[2]; //position in x,y for the columns
-  double posZ[256]; //positions in z for the columns
-  double auxPotDot[256];//time derivative for the columns in z 
-  double PotDot_ofZ; //Interpolated time derivative of potential for each cell n
-  double T_depth[256];
-  double dT_dr[256];
-}*aux_gp; //aux_grid
-
-
 /***************************************************************
                        DEFINITIONS
  ***************************************************************/
@@ -97,4 +88,7 @@ struct aux_grid
 #define Z 2
 #define INTEGRATION_NSTEPS 10000
 #define INDEX_C_ORDER(i,j,k) (k)+GV.NCELLS*((j)+GV.NCELLS*(i)) //Index in C-order
-#define INDEX_C_2D(i,j) GV.NCELLS*((j)+GV.NCELLS*(i))
+#define INDEX_2D_XLOS(j,k) (k)+GV.NCELLS*(j)//Index in C-order in 2D with x as LOS
+#define INDEX_2D_YLOS(i,k) (k)+GV.NCELLS*(GV.NCELLS*(i)) //Index in C-order in 2D with y as LOS
+#define INDEX_2D_ZLOS(i,j) GV.NCELLS*((j)+GV.NCELLS*(i)) //Index in C-order in 2D with z as LOS
+

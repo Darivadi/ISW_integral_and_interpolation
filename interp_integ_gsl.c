@@ -1,10 +1,84 @@
 /****************************************************************************************************
+NAME: fill_potDot
+FUNCTION: Fills the PotDot array in order to interpolate
+INPUT: 
+RETURN: 
+****************************************************************************************************/
+/*+++++ Along x-axis as LOS +++++*/
+#ifdef XLOS
+double fill_potdot_yz(int j, int k)
+{  
+  int m, i;
+  
+  for(i=0; i<GV.NCELLS; i++)
+    { 
+      m = INDEX_C_ORDER(i,j,k);
+      PotDot[i]  = gp[m].potDot_r;
+      
+    }//for i
+    
+  z_depth[0] = 0.0;
+  z_depth[GV.NCELLS-1] = GV.BoxSize;
+  
+  return 0;
+}//fill_potdot_yz
+#endif
+
+
+/*+++++ Along z-axis as LOS +++++*/
+#ifdef YLOS
+double fill_potdot_xz(int i, int k)
+{  
+  int m, j;
+  
+  for(j=0; j<GV.NCELLS; j++)
+    { 
+      m = INDEX_C_ORDER(i,j,k);
+      PotDot[j]  = gp[m].potDot_r;
+    }//for j
+    
+  z_depth[0] = 0.0;
+  z_depth[GV.NCELLS-1] = GV.BoxSize;
+
+  return 0;
+}//fill_potdot_xy
+#endif
+
+
+/*+++++ Along z-axis as LOS +++++*/
+#ifdef ZLOS
+double fill_potdot_xy(int i, int j)
+{  
+  int m, k;
+  
+  for(k=0; k<GV.NCELLS; k++)
+    { 
+      m = INDEX_C_ORDER(i,j,k);
+      PotDot[k]  = gp[m].potDot_r;
+
+      /*
+      if(m%10000==0)
+	{
+	  printf("m=%10d z_depth=%16.8lf PotDot=%16.8lf\n", 
+		 m, z_depth[k], PotDot[k]);
+	}//if
+      */
+    }//for k 
+    
+  z_depth[0] = 0.0;
+  z_depth[GV.NCELLS-1] = GV.BoxSize;
+
+  return 0;
+}//fill_potdot_xy
+#endif
+
+
+/****************************************************************************************************
 NAME: interp_integ_gsl
 FUNCTION: 
 INPUT: 
 RETURN: 
 ****************************************************************************************************/
-
 double interp_integ_potdot_dx(double down_lim, double up_lim)
 {
   //double down_lim, up_lim;
@@ -29,42 +103,130 @@ double interp_integ_potdot_dx(double down_lim, double up_lim)
 
 
 /****************************************************************************************************
-NAME: fill_potdot_dTdr_xy
-FUNCTION: UNDER CONSTRUCTION!
-INPUT: 
-RETURN: 
-****************************************************************************************************/
-/*
-double fill_potdot_dTdr_xy(int i, int j, int k_lim)
-{  
-  int m, k;
-  
-  for(k=0; k<k_lim; k++)
-    { 
-      m = INDEX_C_ORDER(i,j,k);
-      
-      z_depth[k] = gp[m].pos[Z];
-      PotDot[k]  = gp[m].potDot_r;
-    }//for k 
-    
-  z_depth[0] = 0.0;
-  z_depth[k_lim-1] = GV.BoxSize;
-
-  return 0;
-  
-}//fill_potdot_xy
-*/
-
-
-
-
-/****************************************************************************************************
 NAME: dT_dr_gsl
 FUNCTION: UNDER CONSTRUCTION!
 INPUT: 
 RETURN: 
 ****************************************************************************************************/
-double *dT_dr_gsl(int i, int j)
+/*+++++ Along x-axis as LOS +++++*/
+#ifdef XLOS
+double *dT_dr_gsl_yz(int j, int k)
+{
+  double *T_depth=NULL, *DeltaT=NULL, *dT_dr=NULL, dr;
+  double down_lim, up_lim;
+  int m, n, i;
+
+  up_lim = GV.BoxSize;
+
+  T_depth  = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
+  DeltaT   = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
+  dT_dr    = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
+
+
+  for( i=(GV.NCELLS-1); i>=0; --i )
+    {
+      m = INDEX_C_ORDER(i,j,k);            
+                  
+      if( i != (GV.NCELLS-1) )
+	{
+	  if(i!= 0)
+	    {
+	      down_lim = z_depth[i]-GV.CellStep;
+	    }//if k!=0
+	  else
+	    {
+	      down_lim = 0.0;
+	    }
+
+
+	  T_depth[i] = interp_integ_potdot_dx(down_lim, up_lim); 
+	  	  
+	  dT_dr[i] = T_depth[i+1] - T_depth[i];
+	}//if
+      else
+	{
+	  dT_dr[i] = T_depth[i] = gp[m].potDot_r;
+	}//else
+            
+      dr = GV.BoxSize / (1.0 * GV.NCELLS); 
+      dT_dr[i] /= dr ;
+            
+      if( (j==0 && k==0)  )
+	{
+	  printf("m=%d, i=%d, j=%d k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", 
+		 m, i, j, k, z_depth[i], down_lim, T_depth[i]); 
+	}//if
+                       
+    }//for i
+
+  free(T_depth);
+  free(DeltaT);
+
+  return dT_dr;
+}//dT_dr
+#endif //XLOS
+
+
+/*+++++ Along y-axis as LOS +++++*/
+#ifdef YLOS
+double *dT_dr_gsl_xz(int i, int k)
+{
+  double *T_depth=NULL, *DeltaT=NULL, *dT_dr=NULL, dr;
+  double down_lim, up_lim;
+  int m, n, j;
+
+  up_lim = GV.BoxSize;
+
+  T_depth  = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
+  DeltaT   = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
+  dT_dr    = (double *) malloc((size_t) GV.NCELLS*sizeof(double) );
+
+  
+  for( j=(GV.NCELLS-1); j>=0; --j )
+    {
+      m = INDEX_C_ORDER(i,j,k);            
+                  
+      if( j != (GV.NCELLS-1) )
+	{
+	  if(j!= 0)
+	    {
+	      down_lim = z_depth[j]-GV.CellStep;
+	    }//if k!=0
+	  else
+	    {
+	      down_lim = 0.0;
+	    }
+
+	  T_depth[j] = interp_integ_potdot_dx(down_lim, up_lim); 
+	  	  
+	  dT_dr[j] = T_depth[j+1] - T_depth[j];
+	}//if
+      else
+	{
+	  dT_dr[j] = T_depth[j] = gp[m].potDot_r; 	  
+	}//else
+            
+      dr = GV.BoxSize / (1.0 * GV.NCELLS); 
+      dT_dr[j] /= dr ;
+            
+      if( (i==0 && k==0)  )
+	{
+	  printf("m=%d, i=%d, j=%d k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", m, i, j, k, z_depth[j], down_lim, T_depth[j]); 
+	}//if
+                       
+    }//for k
+
+  free(T_depth);
+  free(DeltaT);
+
+  return dT_dr;
+}//dT_dr
+#endif //YLOS
+
+
+/*+++++ Along z-axis as LOS +++++*/
+#ifdef ZLOS
+double *dT_dr_gsl_xy(int i, int j)
 {
   double *T_depth=NULL, *DeltaT=NULL, *dT_dr=NULL, dr;
   double down_lim, up_lim;
@@ -83,13 +245,14 @@ double *dT_dr_gsl(int i, int j)
                   
       if( k != (GV.NCELLS-1) )
 	{
-#ifdef CIC_400
-	  down_lim = gp[m].pos[Z]-GV.CellStep;
-#endif //CIC_400
-
-#ifdef SUPERCIC
-	  down_lim = z_depth[k]-GV.CellStep;
-#endif //SUPERCIC
+	  if(k!= 0)
+	    {
+	      down_lim = z_depth[k]-GV.CellStep;
+	    }//if k!=0
+	  else
+	    {
+	      down_lim = 0.0;
+	    }
 
 	  T_depth[k] = interp_integ_potdot_dx(down_lim, up_lim); 
 	  	  
@@ -99,21 +262,15 @@ double *dT_dr_gsl(int i, int j)
 	{
 	  dT_dr[k] = T_depth[k] = gp[m].potDot_r; 	  
 	}//else
-      
-      
+            
       dr = GV.BoxSize / (1.0 * GV.NCELLS); 
       dT_dr[k] /= dr ;
-      
-
-      //if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
+            
       if( (i==0 && j==0)  )
 	{
 	  printf("m=%d, i=%d, j=%d k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", m, i, j,k, z_depth[k], down_lim, T_depth[k]); 
 	}//if
-      
-
-      //printf("m=%d i=%d j=%d k=%d posZ=%lf T_depth=%lf DeltaT=%lf dT_dr=%lf\n", m, i, j, k, gp[m].pos[Z], T_depth[k], DeltaT[k], dT_dr[k]);
-            
+                       
     }//for k
 
   free(T_depth);
@@ -121,4 +278,4 @@ double *dT_dr_gsl(int i, int j)
 
   return dT_dr;
 }//dT_dr
-
+#endif //ZLOS

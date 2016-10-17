@@ -22,8 +22,9 @@ extern double *z_depth=NULL, *PotDot=NULL;
 *************************************************************************************/
 #include "variables.c"
 #include "reading.c"
-#include "interp_PotDot_of_Z.c"
 #include "interp_integ_gsl.c"
+//#include "interp_PotDot_of_Z.c"
+
 
 
 /*******************************************************************
@@ -71,15 +72,10 @@ int main(int argc, char *argv[])
   
 
   /*+++++ Reading datafile +++++*/
-  printf("Reading the file...\n");
+  printf("Reading the binary file...\n");
   printf("-----------------------------------------\n");
-#ifdef BINARYDATA
   read_binary();
-#endif
 
-#ifdef ASCIIDATA
-  read_data(GV.FILENAME);
-#endif
 
   GV.CellSize = GV.BoxSize/(1.0*GV.NCELLS);
   GV.c_SL     = 299792.458; // km/s
@@ -105,188 +101,246 @@ int main(int argc, char *argv[])
   /*Interpolation of values from exact PotDot*/
   //---------------------------------------------------------  
   printf("Allocating memory\n");
-  //z_depth = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
-  //PotDot  = (double *) malloc((size_t) GV.NCELLS*sizeof(double));
   z_depth = (double *) calloc(GV.NCELLS, sizeof(double));
   PotDot  = (double *) calloc(GV.NCELLS, sizeof(double));
   printf("Memory allocated\n");
 
-  
-  pf = fopen( "./../../Processed_data/SWIntegral_Exact.dat", "w" );  
+#ifdef XLOS  
+  pf = fopen( "./../../Processed_data/XLOS/SWIntegral_Exact_XLOS.dat", "w" );  
   fprintf(pf, "#n\t x\t y\t SW_Integral\n");
-  printf("Interpolation\n");
+#endif //XLOS
+
+#ifdef YLOS  
+  pf = fopen( "./../../Processed_data/YLOS/SWIntegral_Exact_YLOS.dat", "w" );  
+  fprintf(pf, "#n\t x\t y\t SW_Integral\n");
+#endif //YLOS
+
+#ifdef ZLOS  
+  pf = fopen( "./../../Processed_data/ZLOS/SWIntegral_Exact_ZLOS.dat", "w" );  
+  fprintf(pf, "#n\t x\t y\t SW_Integral\n");
+#endif //ZLOS
 
 
-    /*+++++ With Simpson method +++++*/
-#ifdef SIMPSON  
-  printf("Beginning interpolation and integration with Simpson method");
-  for(i=0; i<GV.NCELLS; i++)
-    {                                                                                                          
-      for(j=0; j<GV.NCELLS; j++)                                                                                
-	{                                                                                                       
-	  n = INDEX_C_2D(i,j);                                                                                  
-	  fill_potdot_xy(i, j); // this one builds pot_dot(z)
-	  
-	   fprintf( pf, 
-		    "%12d %16.8f %16.8f %16.8f\n", 
-		    n, gp[n].pos[X], gp[n].pos[Y], GV.a_SF*SW_integral() ); 
-	}//for j 
-    }//for i
-#endif 
-
+  printf("Beginning code\n");
 
   
-  /*+++++ With GSL methods +++++*/
-#ifdef GSLINTERPINTEG
+  /*+++++ With GSL methods +++++*/  
+  printf("Beginning interpolation and integration with gsl methods\n");
+        
+  /*----- Creating array with positions. As the box is cubic, 
+    it does not matter to put x, y or z positions -----*/
   
-   printf("Beginning interpolation and integration with gsl methods\n");
+   for(i=0; i<GV.NCELLS; i++)     
+     z_depth[i] = i*GV.CellSize;
    
-   /*----- CIC box 400 -----*/
- #ifdef CIC_400
- 
+   /*::::: X-axis as LOS :::::*/
+#ifdef XLOS     
+   for(j=0; j<GV.NCELLS; j++)
+     {                                                                                                          
+       for(k=0; k<GV.NCELLS; k++)                                                                               
+	 {                                                                                                      
+	   n = INDEX_2D_XLOS(j,k); 
+	   fill_potdot_yz(j, k); // this one builds pot_dot(z)	 
+	   SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
+	   
+	   fprintf( pf, 
+		    "%12d %16.8f %16.8f %16.8f\n",
+		    n, j*GV.CellSize, k*GV.CellSize, SW_Temp);
+	 }//for k 
+     }//for j
+ #endif //XLOS	
+
+
+   /*::::: Y-axis as LOS :::::*/
+ #ifdef YLOS      
    for(i=0; i<GV.NCELLS; i++)
      {                                                                                                          
-       for(j=0; j<GV.NCELLS; j++)                                                                               
+       for(k=0; k<GV.NCELLS; k++)
 	 {                                                                                                      
-	   n = INDEX_C_2D(i,j);                                                                                 
-	   fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
+	   n = INDEX_2D_YLOS(i,k);                                                                                 
+	   fill_potdot_xz(i, k); // this one builds pot_dot(z)	 
+	   SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
+	   
+	   fprintf( pf, 
+		    "%12d %16.8f %16.8f %16.8f\n",
+		    n, i*GV.CellSize, k*GV.CellSize, SW_Temp);
+	 }//for j 
+     }//for i
+ #endif //YLOS
+
+
+
+   /*::::: Z-axis as LOS :::::*/
+ #ifdef ZLOS      
+   for(i=0; i<GV.NCELLS; i++)
+     {
+       for(j=0; j<GV.NCELLS; j++)
+	 { 
+	   n = INDEX_2D_ZLOS(i,j);
+	   fill_potdot_xy(i, j); // this one builds pot_dot(z)
 	   SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
 	   
 	   /*
-	     if((n==0) || (n==256) || (n==1000) )
+	   if((n==0) || (n==256) || (n==1000) )
 	     {
-	     printf("***********************\n");
-	     printf("n=%12d SW_temp=%16.8lf\n", n, SW_Temp);
-	     
-	      for(k=0; k<GV.NCELLS; k++)
-	      {
-	      printf("z=%lf, PotDot_interp=%lf\n", z_depth[k], PotDot[k]);
-	      }//for k
-	      printf("***********************\n");
-	      
-	      }//if
+	       printf("***********************\n");
+	       printf("n=%12d SW_temp=%16.8lf\n", n, SW_Temp);
+	       
+	       for(k=0; k<GV.NCELLS; k++)
+		 {
+		   if(k==0 || k==512 || k==1024)
+		     printf("z=%lf, PotDot_interp=%lf\n", z_depth[k], PotDot[k]);		  
+		 }//for k
+	       printf("***********************\n");
+	       
+	     }//if
+
+	   
+	   if(n%100000000==0)
+	     {
+	       printf("Ready for n=%d with PotDot=%lf\n",
+		      n, SW_Temp);
+	     }//if 
 	   */
 	   
 	   fprintf( pf, 
 		    "%12d %16.8f %16.8f %16.8f\n",
-		    n, gp[n].pos[X], gp[n].pos[Y], SW_Temp);
+		    n, i*GV.CellSize, j*GV.CellSize, SW_Temp);
 	 }//for j 
      }//for i
- #endif //CIC_400
-   
-
-
-  /*----- Super CIC -----*/
- #ifdef SUPERCIC
-
-   for(i=0; i<GV.NCELLS; i++)
-     z_depth[i] = i*GV.CellSize;
-       
-       
-  for(i=0; i<GV.NCELLS; i++)
-    {                                                                                                          
-      for(j=0; j<GV.NCELLS; j++)                                                                               
-	{                                                                                                      
-	  n = INDEX_C_2D(i,j);                                                                                 
-	  fill_potdot_xy(i, j); // this one builds pot_dot(z)	 
-	  SW_Temp = GV.a_SF*interp_integ_potdot_dx(down_lim, up_lim);
-
-	  /*
-	  if((n==0) || (n==256) || (n==1000) )
-	    {
-	      printf("***********************\n");
-	      printf("n=%12d SW_temp=%16.8lf\n", n, SW_Temp);
-	      
-	      for(k=0; k<GV.NCELLS; k++)
-		{
-		  printf("z=%lf, PotDot_interp=%lf\n", z_depth[k], PotDot[k]);
-		}//for k
-	      printf("***********************\n");
-	      
-	    }//if
-	  */
-	  
-	  fprintf( pf, 
-		   "%12d %16.8f %16.8f %16.8f\n",
-		   n, i*GV.CellSize, j*GV.CellSize, SW_Temp);
-	}//for j 
-    }//for i
-
- #endif //SuperCIC
-
-
-
-#endif
-  
+ #endif //ZLOS			   
+	     
   fclose(pf);
-  
-  free(z_depth);
-  free(PotDot);
   
   printf("Interpolation finished\n");
   printf("-----------------------------------------\n");
   
+
+  /*+++++ dT/dr +++++*/
+#ifdef DTDR
+  
   printf("Performing dT/dr\n");
   printf("-----------------------------------------\n");
   
-
-  printf("Allocating memory\n");
-  z_depth = (double *) calloc(GV.NCELLS, sizeof(double));
-  PotDot  = (double *) calloc(GV.NCELLS, sizeof(double));
-  printf("Memory allocated\n");
-
-  /*+++++ CIC box 400 +++++*/
- #ifdef CIC_400
-  for( i=0; i<GV.NCELLS; i++ )
+  for(i=0; i<GV.NCELLS; i++)
+    z_depth[i] = i*GV.CellSize;
+  
+  /*----- X-axis as LOS -----*/
+ #ifdef XLOS
+  for( j=0; j<GV.NCELLS; j++ )
     {
-      for( j=0; j<GV.NCELLS; j++ )
+      for( k=0; k<GV.NCELLS; k++ )
 	{
-	  n = INDEX_C_2D(i,j); 
-	  
-	  fill_potdot_xy(i, j);	
-	  dT_dr = dT_dr_gsl(i, j);
-	 
-	  if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
+	  /*
+	  if( (k==0 && j==0) 
+	      || (k==(GV.NCELLS/8) && j==(GV.NCELLS/8)) 
+	      || (k==(GV.NCELLS/4) && j==(GV.NCELLS/4)) 
+	      || (k==(GV.NCELLS/2) && j==(GV.NCELLS/2)) 
+	      || (k==(GV.NCELLS-1) && j==(GV.NCELLS-1)) )
 	    {
-	  
-	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.txt", i, j);
-	      pf = fopen(buffer, "w");
-	      	      
-	      for( k=0; k<GV.NCELLS; k++ )
+	  */  
+	      n = INDEX_2D_XLOS(j,k); 
+	      
+	      fill_potdot_yz(j, k);	
+	      dT_dr = dT_dr_gsl_yz(j, k);
+	      
+	      /*
+		if( (k==0 && j==0) 
+		|| (k==(GV.NCELLS/8) && j==(GV.NCELLS/8)) 
+		|| (k==(GV.NCELLS/4) && j==(GV.NCELLS/4)) 
+		|| (k==(GV.NCELLS/2) && j==(GV.NCELLS/2)) 
+		|| (k==(GV.NCELLS-1) && j==(GV.NCELLS-1)) )
 		{
-		  m = INDEX_C_ORDER(i,j,k);
-		  
-		  fprintf(pf, "%16.8lf %16.8lf\n", gp[m].pos[Z], dT_dr[k]);
+	      */  
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/XLOS/dT_dr_j%d_k%d.txt", j, k);
+	      pf = fopen(buffer, "w");
+	      
+	      for( i=0; i<GV.NCELLS; i++ )
+		{		  
+		  fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
 		}//for k
 	      
 	      fclose(pf);
-
-	    }//if
-
+	      
+	      //}//if
+	  
 	}//for j
     }//for i
- #endif //CIC_400
+ #endif //XLOS
 
-  /*+++++ SuperCIC +++++*/
- #ifdef SUPERCIC
+  
+  /*----- Y-axis as LOS -----*/
+ #ifdef YLOS
+  for( i=0; i<GV.NCELLS; i++ )
+    {
+      for( k=0; k<GV.NCELLS; k++ )
+	{
+	  /*
+	  if( (k==0 && i==0) 
+	      || (k==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
+	      || (k==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
+	      || (k==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
+	      || (k==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
+	    {
+	  */  
+	      n = INDEX_2D_YLOS(i,k); 
+	      
+	      fill_potdot_xz(i, k);	
+	      dT_dr = dT_dr_gsl_xz(i, k);
+	      
+	      /*
+		if( (k==0 && i==0) 
+		|| (k==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
+		|| (k==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
+		|| (k==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
+		|| (k==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
+		{	      
+	      */
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/YLOS/dT_dr_i%d_k%d.txt", i, k);
+	      pf = fopen(buffer, "w");
+	      
+	      for( j=0; j<GV.NCELLS; j++ )
+		{		  
+		  fprintf(pf, "%16.8lf %16.8lf\n", j*GV.CellSize, dT_dr[j]);
+		}//for k
+	      
+	      fclose(pf);
+	      
+	      //}//if
+	  
+	}//for k
+    }//for i
+ #endif //YLOS
 
-   for(i=0; i<GV.NCELLS; i++)
-     z_depth[i] = i*GV.CellSize;
 
-
+  /*----- Z-axis as LOS -----*/
+  #ifdef ZLOS
   for( i=0; i<GV.NCELLS; i++ )
     {
       for( j=0; j<GV.NCELLS; j++ )
 	{
-	  n = INDEX_C_2D(i,j); 
-	  
-	  fill_potdot_xy(i, j);	
-	  dT_dr = dT_dr_gsl(i, j);
-	 
-	  if( (i==0 && j==0) || (i==64 && j==64) || (i==128 && j==128) || (i==256 && j==256) )
-	    {
+	  /*
+	  if( (j==0 && i==0) 
+	      || (j==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
+	      || (j==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
+	      || (j==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
+	      || (j==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
+	    {	      
+	  */  
+	      n = INDEX_2D_ZLOS(i,j); 
 	      
-	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/dT_dr_i%d_j%d.txt", i, j);
+	      fill_potdot_xy(i, j);	
+	      dT_dr = dT_dr_gsl_xy(i, j);
+	      
+	      /*
+		if( (j==0 && i==0) 
+		|| (j==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
+		|| (j==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
+		|| (j==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
+		|| (j==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
+		{	      
+	      */
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/ZLOS/dT_dr_i%d_j%d.txt", i, j);
 	      pf = fopen(buffer, "w");
 	      
 	      for( k=0; k<GV.NCELLS; k++ )
@@ -296,15 +350,17 @@ int main(int argc, char *argv[])
 	      
 	      fclose(pf);
 	      
-	    }//if
-
+	      //}//if
+	  
 	}//for j
     }//for i
+ #endif //ZLOS
 
- #endif //SuperCIC
-  
+#endif //DTDR  
+
+  free(z_depth);
+  free(PotDot);
     
-  
   printf("Code finished!\n");  
   printf("-----------------------------------------\n");
 

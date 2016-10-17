@@ -50,32 +50,14 @@ int read_parameters( char filename[] )
   nread = fscanf(file, "%d", &GV.NCELLS);
   nread = fscanf(file, "%s", GV.FILENAME);    
 
-
-
-  /*+++++ Parameters for ASCII data +++++*/
-  /*
-#ifdef ASCIIDATA
-  //+++++ Simulation parameters +++++
-  nread = fscanf(file, "%d", &GV.NCELLS);
-  nread = fscanf(file, "%lf", &GV.BoxSize);
-  nread = fscanf(file, "%s", GV.FILENAME);
+  fclose( file );
   
-  //+++++ Cosmological parameters +++++
-  nread = fscanf(file, "%lf", &GV.Omega_M0);
-  nread = fscanf(file, "%lf", &GV.Omega_L0);
-  nread = fscanf(file, "%lf", &GV.z_RS);
-  nread = fscanf(file, "%lf", &GV.H0);    
-  GV.a_SF = 1.0/(1.0 + GV.z_RS); 
-#endif
-  */
-    fclose( file );
-    
-    printf( "  * The file '%s' has been loaded!\n", filename );
-
-    sprintf( cmd, "rm -rf %s.dump", filename );
-    nread = system( cmd );
-    
-    return 0;
+  printf( "  * The file '%s' has been loaded!\n", filename );
+  
+  sprintf( cmd, "rm -rf %s.dump", filename );
+  nread = system( cmd );
+  
+  return 0;
 }
 
 
@@ -133,7 +115,6 @@ FUNCTION: Reads the binary data file
 INPUT: None
 RETURN: 0 
 ****************************************************************************************************/
-
 int read_binary(void)
 {
   int i, nread;
@@ -146,13 +127,15 @@ int read_binary(void)
 
   
   /*+++++ Saving Simulation parameters +++++*/
-  nread = fread(&GV.BoxSize, sizeof(double), 1, inFile);  //Box Size
+  nread = fread(&GV.BoxSize,  sizeof(double), 1, inFile);  //Box Size
   nread = fread(&GV.Omega_M0, sizeof(double), 1, inFile);  //Matter density parameter
   nread = fread(&GV.Omega_L0, sizeof(double), 1, inFile);  //Cosmological constant density parameter
-  nread = fread(&GV.z_RS, sizeof(double), 1, inFile);  //Redshift
-  nread = fread(&GV.H0, sizeof(double), 1, inFile);  //Hubble parameter
+  nread = fread(&GV.z_RS,     sizeof(double), 1, inFile);  //Redshift
+  nread = fread(&GV.H0,       sizeof(double), 1, inFile);  //Hubble parameter
+  nread = fread(&GV.NCELLS,   sizeof(int),    1, inFile);  //Number or cells
 
   GV.a_SF = 1.0 / (1.0 + GV.z_RS);
+  GV.NTOTALCELLS = GV.NCELLS * GV.NCELLS * GV.NCELLS;
   
   printf("-----------------------------------------------\n");
   printf("Cosmological parameters:\n");
@@ -169,24 +152,25 @@ int read_binary(void)
   printf("-----------------------------------------------\n");
 
     
-#ifdef CIC_400
+#if defined (CIC_400) || defined (CIC_MDR)
     
   for(i=0; i<GV.NTOTALCELLS; i++ )
     {       
       nread = fread(&pos_aux[0], sizeof(double), 3, inFile);
       
       /*----- Positions -----*/
+      /*
       gp[i].pos[X] = pos_aux[X];
       gp[i].pos[Y] = pos_aux[Y];
       gp[i].pos[Z] = pos_aux[Z];
-            
+      */    
       nread = fread(&gp[i].potDot_r, sizeof(double), 1, inFile);  // PotDot 
       
             
-      if(i%10000==0)
+      if(i%5000000==0)
 	{
 	  printf("Reading i=%d x=%lf y=%lf z=%lf PD = %lf\n", 
-		 i, gp[i].pos[X], gp[i].pos[Y], gp[i].pos[Z],
+		 i, pos_aux[X], pos_aux[Y], pos_aux[Z],
 		 gp[i].potDot_r);
 	}//if
 
@@ -195,17 +179,23 @@ int read_binary(void)
 
 
 #ifdef SUPERCIC    
+  //nread = fread(&dummy,   sizeof(int),    1, inFile);  // Hubble parameter
   
   for(i=0; i<GV.NTOTALCELLS; i++)
     {
       /*..... File app2 .....*/
         nread = fread(&gp[i].potDot_r, sizeof(double), 1, inFile);
+	
+	if(i%100000000==0)
+	  {
+	    printf("Ready for i=%d with PotDot=%lf\n", 
+		   i, gp[i].potDot_r);
+	  }//if
     }//for m	      
 
 #endif  
 
 
-  
   printf("Data read!\n");
   fclose(inFile);
   return 0;

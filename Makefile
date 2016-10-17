@@ -1,9 +1,8 @@
 CC = gcc
-CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA -DSIMPSON
-CFLAGSSIMP = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DBINARYDATA -DSIMPSON
-CFLAGSASCII = -c -O3 -Wall -I/home/$(USER)/local/include/ -I/usr/include/ -DASCIIDATA
-CFLAGS = -c -O3 -I$(HOME)/local/include/ -I/usr/include/ -DBINARYDATA -DGSLINTERPINTEG -DCIC_400
-CFLAGSSUPERCIC = -c -O3 -I$(HOME)/local/include/ -I/usr/include/ -DBINARYDATA -DGSLINTERPINTEG -DSUPERCIC
+CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DCIC_400
+CFLAGS = -c -O3 -I$(HOME)/local/include/ -I/usr/include/ -DCIC_400 -DDTDR -DZLOS 
+#ZLOS is along z-axis as Line Oof Sight. The same applies for XLOS and YLOS to integrate alont the respective axis
+CFLAGSSUPERCIC = -c -O3 -I$(HOME)/local/include/ -I/usr/include/ -DSUPERCIC -DDTDR -DZLOS
 LFLAGS = -lm -L$(HOME)/local/lib -Wl,"-R /export/$(USER)/local/lib"
 
 
@@ -19,16 +18,6 @@ debug:
 	echo Compiling for debug $(PROGRAM).c
 	$(CC) $(CFLAGSDEBUG) $(PROGRAM).c -o $(PROGRAM).o
 	$(CC) $(PROGRAM).o $(LFLAGS) -lgsl -lgslcblas -lm -o $(PROGRAM).x
-
-asciidata:
-	echo Compiling for ascii $(PROGRAM).c
-	$(CC) $(CFLAGSASCII) $(PROGRAM).c -o $(PROGRAM).o
-	$(CC) $(PROGRAM).o $(LFLAGS) -lgsl -lgslcblas -lm -o $(PROGRAM).x
-
-simpsonint:
-	$(CC) $(CFLAGSSIMP) $(PROGRAM).c -o $(PROGRAM).o
-	$(CC) $(PROGRAM).o $(LFLAGS) -lgsl -lgslcblas -lm -o $(PROGRAM)
-	mv main_interp_SW_integral Interp_testing_simp.x
 
 SUPERCIC:
 	$(CC) $(CFLAGSSUPERCIC) $(PROGRAM).c -o $(PROGRAM).o

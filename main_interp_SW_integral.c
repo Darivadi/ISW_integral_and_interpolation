@@ -254,14 +254,14 @@ int main(int argc, char *argv[])
 	  
 	  fill_potdot_yz(j, k);	
 	  dT_dr = dT_dr_gsl_yz(j, k);
-	  	  
+	  
+	  fwrite(&(n),        sizeof(int),    1, pf);
 	  
 	  for( i=0; i<GV.NCELLS; i++ )
 	    {	
 	      m = INDEX_C_ORDER(i,j,k);
 	      //m = INDEX_C_ORDER(j,k,i);
-	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
-	      fwrite(&(n),        sizeof(int),    1, pf);
+	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);	      
 	      fwrite(&(m),        sizeof(int),    1, pf);	      
 	      fwrite(&(dT_dr[i]), sizeof(double), 1, pf);	      
 	    }//for k
@@ -310,6 +310,8 @@ int main(int argc, char *argv[])
 	  fill_potdot_xz(i, k);	
 	  dT_dr = dT_dr_gsl_xz(i, k);
 	  
+	  fwrite(&(n),        sizeof(int),    1, pf);
+	  
 	  /*
 	    if( (k==0 && i==0) 
 	    || (k==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
@@ -327,7 +329,7 @@ int main(int argc, char *argv[])
 	      m = INDEX_C_ORDER(i,j,k);
 	      //m = INDEX_C_ORDER(i,k,j);
 	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
-	      fwrite(&(n),        sizeof(int),    1, pf);
+	      
 	      fwrite(&(m),        sizeof(int),    1, pf);	      
 	      fwrite(&(dT_dr[j]), sizeof(double), 1, pf);	      
 	    }//for j
@@ -378,6 +380,8 @@ int main(int argc, char *argv[])
 	      
 	      fill_potdot_xy(i, j);	
 	      dT_dr = dT_dr_gsl_xy(i, j);
+
+	      fwrite(&(n),        sizeof(int),    1, pf);
 	      
 	      /*
 		if( (j==0 && i==0) 
@@ -394,7 +398,7 @@ int main(int argc, char *argv[])
 		{		  
 		  m = INDEX_C_ORDER(i,j,k);		  
 		  //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
-		  fwrite(&(n),        sizeof(int),    1, pf);
+		  
 		  fwrite(&(m),        sizeof(int),    1, pf);	      
 		  fwrite(&(dT_dr[k]), sizeof(double), 1, pf);	      
 		  //fprintf(pf, "%16.8lf %16.8lf\n", k*GV.CellSize, dT_dr[k]);

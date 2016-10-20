@@ -186,7 +186,7 @@ int read_binary(void)
       /*..... File app2 .....*/
         nread = fread(&gp[i].potDot_r, sizeof(double), 1, inFile);
 	
-	if(i%100000000==0)
+	if(i%5000000==0)
 	  {
 	    printf("Ready for i=%d with PotDot=%lf\n", 
 		   i, gp[i].potDot_r);

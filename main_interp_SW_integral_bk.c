@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
   char buff[1000];
   double down_lim, up_lim, aux_z, aux_dT;
   char buffer[50];
-  char Proj_plane[2];
   double SW_Temp;
 
 
@@ -228,139 +227,94 @@ int main(int argc, char *argv[])
   
   /*----- X-axis as LOS -----*/
  #ifdef XLOS
-
-  pf = fopen("./../../Processed_data/dTdr_XLOS.bin");
-
-  snprintf(Proj_plane, sizeof(char)*50, "YZ");  
-  printf("Saving dT_dr for plane %s", Proj_plane);
-    
-  fwrite(&(GV.BoxSize),      sizeof(double),  1, pf);  // Box Size                                                     
-  fwrite((&GV.Omega_M0),     sizeof(double),  1, pf);  // Matter density parameter                                     
-  fwrite((&GV.Omega_L0),     sizeof(double),  1, pf);  // Cosmological constant density parameter                      
-  fwrite((&GV.z_RS),         sizeof(double),  1, pf);  // Redshift                                                     
-  fwrite(&(GV.H0),           sizeof(double),  1, pf);  // Hubble parameter                                             
-  fwrite(&(GV.NCELLS),       sizeof(int),     1, pf);  // Number of cells in one axis
-  fwrite(&(Proj_plane[0]),   sizeof(char),    1, pf);  //Projection plane
-  fwrite(&(Proj_plane[1]),   sizeof(char),    1, pf);  //Projection plane
-
-  
   for( j=0; j<GV.NCELLS; j++ )
     {
       for( k=0; k<GV.NCELLS; k++ )
 	{
+	  /*
+	  if( (k==0 && j==0) 
+	      || (k==(GV.NCELLS/8) && j==(GV.NCELLS/8)) 
+	      || (k==(GV.NCELLS/4) && j==(GV.NCELLS/4)) 
+	      || (k==(GV.NCELLS/2) && j==(GV.NCELLS/2)) 
+	      || (k==(GV.NCELLS-1) && j==(GV.NCELLS-1)) )
+	    {
+	  */  
+	      n = INDEX_2D_XLOS(j,k); 
+	      
+	      fill_potdot_yz(j, k);	
+	      dT_dr = dT_dr_gsl_yz(j, k);
+	      
+	      /*
+		if( (k==0 && j==0) 
+		|| (k==(GV.NCELLS/8) && j==(GV.NCELLS/8)) 
+		|| (k==(GV.NCELLS/4) && j==(GV.NCELLS/4)) 
+		|| (k==(GV.NCELLS/2) && j==(GV.NCELLS/2)) 
+		|| (k==(GV.NCELLS-1) && j==(GV.NCELLS-1)) )
+		{
+	      */  
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/XLOS/dT_dr_j%d_k%d.txt", j, k);
+	      pf = fopen(buffer, "w");
+	      
+	      for( i=0; i<GV.NCELLS; i++ )
+		{		  
+		  fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
+		}//for k
+	      
+	      fclose(pf);
+	      
+	      //}//if
 	  
-	  n = INDEX_2D_XLOS(j,k); 
-	  
-	  fill_potdot_yz(j, k);	
-	  dT_dr = dT_dr_gsl_yz(j, k);
-	  	  
-	  
-	  for( i=0; i<GV.NCELLS; i++ )
-	    {	
-	      m = INDEX_C_ORDER(i,j,k);
-	      //m = INDEX_C_ORDER(j,k,i);
-	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
-	      fwrite(&(n),        sizeof(int),    1, pf);
-	      fwrite(&(m),        sizeof(int),    1, pf);	      
-	      fwrite(&(dT_dr[i]), sizeof(double), 1, pf);	      
-	    }//for k
-	  	  
-	  //fclose(pf);
-	  	  
 	}//for j
     }//for i
-
-  fclose(pf);
  #endif //XLOS
 
   
   /*----- Y-axis as LOS -----*/
  #ifdef YLOS
-  
-  pf = fopen("./../../Processed_data/dTdr_YLOS.bin");
-  
-  snprintf(Proj_plane, sizeof(char)*50, "XZ");  
-  printf("Saving dT_dr for plane %s", Proj_plane);
-    
-  fwrite(&(GV.BoxSize),      sizeof(double),  1, pf);  // Box Size                                                     
-  fwrite((&GV.Omega_M0),     sizeof(double),  1, pf);  // Matter density parameter                                     
-  fwrite((&GV.Omega_L0),     sizeof(double),  1, pf);  // Cosmological constant density parameter                      
-  fwrite((&GV.z_RS),         sizeof(double),  1, pf);  // Redshift                                                     
-  fwrite(&(GV.H0),           sizeof(double),  1, pf);  // Hubble parameter                                             
-  fwrite(&(GV.NCELLS),       sizeof(int),     1, pf);  // Number of cells in one axis
-  fwrite(&(Proj_plane[0]),   sizeof(char),    1, pf);  //Projection plane
-  fwrite(&(Proj_plane[1]),   sizeof(char),    1, pf);  //Projection plane
-  
-  
   for( i=0; i<GV.NCELLS; i++ )
     {
       for( k=0; k<GV.NCELLS; k++ )
 	{
 	  /*
-	    if( (k==0 && i==0) 
-	    || (k==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
-	    || (k==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
-	    || (k==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
-	    || (k==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
+	  if( (k==0 && i==0) 
+	      || (k==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
+	      || (k==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
+	      || (k==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
+	      || (k==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
 	    {
 	  */  
-	  n = INDEX_2D_YLOS(i,k); 
-	  
-	  fill_potdot_xz(i, k);	
-	  dT_dr = dT_dr_gsl_xz(i, k);
-	  
-	  /*
-	    if( (k==0 && i==0) 
-	    || (k==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
-	    || (k==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
-	    || (k==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
-	    || (k==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
-	    {	      
-	  */
-	  //snprintf(buffer, sizeof(char)*50, "./../../Processed_data/YLOS/dT_dr_i%d_k%d.txt", i, k);
-	  //pf = fopen(buffer, "w");
+	      n = INDEX_2D_YLOS(i,k); 
 	      
-	  for( j=0; j<GV.NCELLS; j++ )
-	    {		  
-	      //fprintf(pf, "%16.8lf %16.8lf\n", j*GV.CellSize, dT_dr[j]);
-	      m = INDEX_C_ORDER(i,j,k);
-	      //m = INDEX_C_ORDER(i,k,j);
-	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
-	      fwrite(&(n),        sizeof(int),    1, pf);
-	      fwrite(&(m),        sizeof(int),    1, pf);	      
-	      fwrite(&(dT_dr[j]), sizeof(double), 1, pf);	      
-	    }//for j
+	      fill_potdot_xz(i, k);	
+	      dT_dr = dT_dr_gsl_xz(i, k);
 	      
-	  //fclose(pf);
-	  
-	  //}//if
+	      /*
+		if( (k==0 && i==0) 
+		|| (k==(GV.NCELLS/8) && i==(GV.NCELLS/8)) 
+		|| (k==(GV.NCELLS/4) && i==(GV.NCELLS/4)) 
+		|| (k==(GV.NCELLS/2) && i==(GV.NCELLS/2)) 
+		|| (k==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
+		{	      
+	      */
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/YLOS/dT_dr_i%d_k%d.txt", i, k);
+	      pf = fopen(buffer, "w");
+	      
+	      for( j=0; j<GV.NCELLS; j++ )
+		{		  
+		  fprintf(pf, "%16.8lf %16.8lf\n", j*GV.CellSize, dT_dr[j]);
+		}//for k
+	      
+	      fclose(pf);
+	      
+	      //}//if
 	  
 	}//for k
     }//for i
-
-  fclose(pf);
-
  #endif //YLOS
-  
+
 
   /*----- Z-axis as LOS -----*/
   #ifdef ZLOS
-
-  pf = fopen("./../../Processed_data/dTdr_ZLOS.bin");
-  
-  snprintf(Proj_plane, sizeof(char)*50, "XY");  
-  printf("Saving dT_dr for plane %s", Proj_plane);
-  
-  fwrite(&(GV.BoxSize),      sizeof(double),  1, pf);  // Box Size                                                     
-  fwrite((&GV.Omega_M0),     sizeof(double),  1, pf);  // Matter density parameter                                     
-  fwrite((&GV.Omega_L0),     sizeof(double),  1, pf);  // Cosmological constant density parameter                      
-  fwrite((&GV.z_RS),         sizeof(double),  1, pf);  // Redshift                                                     
-  fwrite(&(GV.H0),           sizeof(double),  1, pf);  // Hubble parameter                                             
-  fwrite(&(GV.NCELLS),       sizeof(int),     1, pf);  // Number of cells in one axis
-  fwrite(&(Proj_plane[0]),   sizeof(char),    1, pf);  //Projection plane
-  fwrite(&(Proj_plane[1]),   sizeof(char),    1, pf);  //Projection plane
-  
-  
   for( i=0; i<GV.NCELLS; i++ )
     {
       for( j=0; j<GV.NCELLS; j++ )
@@ -386,27 +340,20 @@ int main(int argc, char *argv[])
 		|| (j==(GV.NCELLS-1) && i==(GV.NCELLS-1)) )
 		{	      
 	      */
-	      //snprintf(buffer, sizeof(char)*50, "./../../Processed_data/ZLOS/dT_dr_i%d_j%d.txt", i, j);
-	      //pf = fopen(buffer, "w");
+	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/ZLOS/dT_dr_i%d_j%d.txt", i, j);
+	      pf = fopen(buffer, "w");
 	      
 	      for( k=0; k<GV.NCELLS; k++ )
 		{		  
-		  m = INDEX_C_ORDER(i,j,k);		  
-		  //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
-		  fwrite(&(n),        sizeof(int),    1, pf);
-		  fwrite(&(m),        sizeof(int),    1, pf);	      
-		  fwrite(&(dT_dr[k]), sizeof(double), 1, pf);	      
-		  //fprintf(pf, "%16.8lf %16.8lf\n", k*GV.CellSize, dT_dr[k]);
+		  fprintf(pf, "%16.8lf %16.8lf\n", k*GV.CellSize, dT_dr[k]);
 		}//for k
 	      
-	      //fclose(pf);
+	      fclose(pf);
 	      
 	      //}//if
-	      
+	  
 	}//for j
     }//for i
-  fclose(pf);
-
  #endif //ZLOS
 
 #endif //DTDR  

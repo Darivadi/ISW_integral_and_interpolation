@@ -36,7 +36,7 @@ RETURN: none
 
 int main(int argc, char *argv[])
 {
-  int i, j, k, n, m;
+  int i, j, k, n, m, count = 0;
   double z, *dT_dr=NULL; 
   char *infile=NULL;
   FILE *pf=NULL;
@@ -267,6 +267,12 @@ int main(int argc, char *argv[])
 	    }//for k
 	  	  
 	  //fclose(pf);
+	  
+	  count += 1;
+	  if(count%(4096*4096)==0)
+	    {
+	      printf("ready for count=%d of %d\n", count, GV.NCELLS*GV.NCELLS);
+	    }
 	  	  
 	}//for j
     }//for i
@@ -333,7 +339,14 @@ int main(int argc, char *argv[])
 	      fwrite(&(m),        sizeof(int),    1, pf);	      
 	      fwrite(&(dT_dr[j]), sizeof(double), 1, pf);	      
 	    }//for j
-	      
+	  
+	  count += 1;
+	  if(count%(4096*4096)==0)
+	    {
+	      printf("ready for count=%d of %d\n", count, GV.NCELLS*GV.NCELLS);
+	    }
+
+    
 	  //fclose(pf);
 	  
 	  //}//if
@@ -403,7 +416,14 @@ int main(int argc, char *argv[])
 		  fwrite(&(dT_dr[k]), sizeof(double), 1, pf);	      
 		  //fprintf(pf, "%16.8lf %16.8lf\n", k*GV.CellSize, dT_dr[k]);
 		}//for k
+	     
+	      count += 1;
+	      if(count%(4096*4096)==0)
+		{
+		  printf("ready for count=%d of %d\n", count, GV.NCELLS*GV.NCELLS);
+		}
 	      
+ 
 	      //fclose(pf);
 	      
 	      //}//if

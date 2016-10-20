@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
   /*----- X-axis as LOS -----*/
  #ifdef XLOS
 
-  pf = fopen("./../../Processed_data/dTdr_XLOS.bin");
+  pf = fopen("./../../Processed_data/dTdr_XLOS.bin", "w" );
 
   snprintf(Proj_plane, sizeof(char)*50, "YZ");  
   printf("Saving dT_dr for plane %s", Proj_plane);
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
   /*----- Y-axis as LOS -----*/
  #ifdef YLOS
   
-  pf = fopen("./../../Processed_data/dTdr_YLOS.bin");
+  pf = fopen("./../../Processed_data/dTdr_YLOS.bin", "w" );
   
   snprintf(Proj_plane, sizeof(char)*50, "XZ");  
   printf("Saving dT_dr for plane %s", Proj_plane);
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
   /*----- Z-axis as LOS -----*/
   #ifdef ZLOS
 
-  pf = fopen("./../../Processed_data/dTdr_ZLOS.bin");
+  pf = fopen("./../../Processed_data/dTdr_ZLOS.bin", "w" );
   
   snprintf(Proj_plane, sizeof(char)*50, "XY");  
   printf("Saving dT_dr for plane %s", Proj_plane);

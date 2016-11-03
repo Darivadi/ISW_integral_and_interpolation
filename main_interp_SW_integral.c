@@ -231,39 +231,46 @@ int main(int argc, char *argv[])
 
   printf("For XLOS\n");
   pf = fopen("./../../Processed_data/dTdr_XLOS.bin", "w" );
+  
+  Proj_plane[0] = 'Y';
+  Proj_plane[1] = 'Z';
 
+  /*
   snprintf(Proj_plane, sizeof(char)*2, "YZ");  
   printf("Saving dT_dr for plane %s", Proj_plane);
-    
-  fwrite(&(GV.BoxSize),      sizeof(double),  1, pf);  // Box Size                                                     
-  fwrite((&GV.Omega_M0),     sizeof(double),  1, pf);  // Matter density parameter                                     
-  fwrite((&GV.Omega_L0),     sizeof(double),  1, pf);  // Cosmological constant density parameter                      
-  fwrite((&GV.z_RS),         sizeof(double),  1, pf);  // Redshift                                                     
-  fwrite(&(GV.H0),           sizeof(double),  1, pf);  // Hubble parameter                                             
+  */
+  fwrite(&(GV.BoxSize),      sizeof(double),  1, pf);  // Box Size  
+  fwrite((&GV.Omega_M0),     sizeof(double),  1, pf);  // Matter density parameter    
+  fwrite((&GV.Omega_L0),     sizeof(double),  1, pf);  // Cosmological constant density parameter  
+  fwrite((&GV.z_RS),         sizeof(double),  1, pf);  // Redshift                                   
+  fwrite(&(GV.H0),           sizeof(double),  1, pf);  // Hubble parameter                                
   fwrite(&(GV.NCELLS),       sizeof(int),     1, pf);  // Number of cells in one axis
   fwrite(&(Proj_plane[0]),   sizeof(char),    1, pf);  //Projection plane
   fwrite(&(Proj_plane[1]),   sizeof(char),    1, pf);  //Projection plane
 
-  
   for( j=0; j<GV.NCELLS; j++ )
     {
       for( k=0; k<GV.NCELLS; k++ )
-	{
-	  
+	{	  
 	  n = INDEX_2D_XLOS(j,k); 
 	  
 	  fill_potdot_yz(j, k);	
 	  dT_dr = dT_dr_gsl_yz(j, k);
 	  
-	  fwrite(&(n),        sizeof(int),    1, pf);
+	  fwrite(&(n), sizeof(int), 1, pf);
 	  
 	  for( i=0; i<GV.NCELLS; i++ )
 	    {	
 	      m = INDEX_C_ORDER(i,j,k);
 	      //m = INDEX_C_ORDER(j,k,i);
 	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);	      
-	      fwrite(&(m),        sizeof(int),    1, pf);	      
-	      fwrite(&(dT_dr[i]), sizeof(double), 1, pf);	      
+	      //fwrite(&(m),        sizeof(int),    1, pf);	      
+	      fwrite(&(i),        sizeof(int),    1, pf); 
+	      
+	      /* The -1.0 factor is due to the fact that, although I'm integrating from 
+		 0 to BoxSize, I'm reducing the distance from BoxSize to 0, then the dr must 
+		 be multiplied by -1.0 */
+	      fwrite(&(-1.0*dT_dr[i]), sizeof(double), 1, pf); 
 	    }//for k
 	  	  
 	  //fclose(pf);
@@ -286,9 +293,13 @@ int main(int argc, char *argv[])
   
   pf = fopen("./../../Processed_data/dTdr_YLOS.bin", "w" );
   
+  Proj_plane[0] = 'X';
+  Proj_plane[1] = 'Z';
+
+  /*
   snprintf(Proj_plane, sizeof(char)*2, "XZ");  
   printf("Saving dT_dr for plane %s", Proj_plane);
-    
+  */
   fwrite(&(GV.BoxSize),      sizeof(double),  1, pf);  // Box Size                                                     
   fwrite((&GV.Omega_M0),     sizeof(double),  1, pf);  // Matter density parameter                                     
   fwrite((&GV.Omega_L0),     sizeof(double),  1, pf);  // Cosmological constant density parameter                      
@@ -336,7 +347,7 @@ int main(int argc, char *argv[])
 	      //m = INDEX_C_ORDER(i,k,j);
 	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
 	      
-	      fwrite(&(m),        sizeof(int),    1, pf);	      
+	      fwrite(&(j),        sizeof(int),    1, pf);	      
 	      fwrite(&(dT_dr[j]), sizeof(double), 1, pf);	      
 	    }//for j
 	  
@@ -363,10 +374,15 @@ int main(int argc, char *argv[])
   #ifdef ZLOS
 
   pf = fopen("./../../Processed_data/dTdr_ZLOS.bin", "w" );
+
+  Proj_plane[0] = 'X';
+  Proj_plane[1] = 'Y';
   
+  /*
   snprintf(Proj_plane, sizeof(char)*2, "XY");  
   printf("Saving dT_dr for plane %s", Proj_plane);
-  
+  */
+
   fwrite(&(GV.BoxSize),      sizeof(double),  1, pf);  // Box Size                                                     
   fwrite((&GV.Omega_M0),     sizeof(double),  1, pf);  // Matter density parameter                                     
   fwrite((&GV.Omega_L0),     sizeof(double),  1, pf);  // Cosmological constant density parameter                      
@@ -412,7 +428,7 @@ int main(int argc, char *argv[])
 		  m = INDEX_C_ORDER(i,j,k);		  
 		  //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
 		  
-		  fwrite(&(m),        sizeof(int),    1, pf);	      
+		  fwrite(&(k),        sizeof(int),    1, pf);	      
 		  fwrite(&(dT_dr[k]), sizeof(double), 1, pf);	      
 		  //fprintf(pf, "%16.8lf %16.8lf\n", k*GV.CellSize, dT_dr[k]);
 		}//for k

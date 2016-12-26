@@ -270,7 +270,8 @@ int main(int argc, char *argv[])
 	      /* The -1.0 factor is due to the fact that, although I'm integrating from 
 		 0 to BoxSize, I'm reducing the distance from BoxSize to 0, then the dr must 
 		 be multiplied by -1.0 */
-	      fwrite(&(-1.0*dT_dr[i]), sizeof(double), 1, pf); 
+	      dT_dr[i] *= -1.0;
+	      fwrite(&(dT_dr[i]), sizeof(double), 1, pf); 
 	    }//for k
 	  	  
 	  //fclose(pf);
@@ -348,6 +349,10 @@ int main(int argc, char *argv[])
 	      //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
 	      
 	      fwrite(&(j),        sizeof(int),    1, pf);	      
+	      /* The -1.0 factor is due to the fact that, although I'm integrating from 
+		 0 to BoxSize, I'm reducing the distance from BoxSize to 0, then the dr must 
+		 be multiplied by -1.0 */
+	      dT_dr[j] *= -1.0;
 	      fwrite(&(dT_dr[j]), sizeof(double), 1, pf);	      
 	    }//for j
 	  
@@ -429,6 +434,7 @@ int main(int argc, char *argv[])
 		  //fprintf(pf, "%16.8lf %16.8lf\n", i*GV.CellSize, dT_dr[i]);
 		  
 		  fwrite(&(k),        sizeof(int),    1, pf);	      
+		  dT_dr[k] *= -1.0;
 		  fwrite(&(dT_dr[k]), sizeof(double), 1, pf);	      
 		  //fprintf(pf, "%16.8lf %16.8lf\n", k*GV.CellSize, dT_dr[k]);
 		}//for k

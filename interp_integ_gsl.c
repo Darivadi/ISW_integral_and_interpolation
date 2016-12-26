@@ -150,13 +150,13 @@ double *dT_dr_gsl_yz(int j, int k)
             
       dr = GV.BoxSize / (1.0 * GV.NCELLS); 
       dT_dr[i] /= dr ;
-            
+      /*
       if( (j==0 && k==0)  )
 	{
 	  printf("m=%d, i=%d, j=%d k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", 
 		 m, i, j, k, z_depth[i], down_lim, T_depth[i]); 
 	}//if
-                       
+      */               
     }//for i
 
   free(T_depth);
@@ -208,12 +208,12 @@ double *dT_dr_gsl_xz(int i, int k)
             
       dr = GV.BoxSize / (1.0 * GV.NCELLS); 
       dT_dr[j] /= dr ;
-            
+      /*
       if( (i==0 && k==0)  )
 	{
 	  printf("m=%d, i=%d, j=%d k=%d, z_depth=%lf, downlim= %lf, T=%lf\n", m, i, j, k, z_depth[j], down_lim, T_depth[j]); 
 	}//if
-                       
+      */               
     }//for k
 
   free(T_depth);
